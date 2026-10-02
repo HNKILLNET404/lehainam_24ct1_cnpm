@@ -1,0 +1,415 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Urban Threads — Thời Trang Streetwear{% endblock %}</title>
+    <meta name="description" content="{% block description %}Urban Threads - Thương hiệu thời trang streetwear cao cấp. Shop áo, quần, phụ kiện phong cách{% endblock %}">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand': '#111111',
+                        'brand-light': '#333333',
+                        'accent': '#C8A96E',
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 3px; }
+
+        /* Transitions */
+        .nav-link { transition: all 0.2s ease; }
+        .product-card { transition: all 0.3s ease; }
+        .product-card:hover .product-image { transform: scale(1.05); }
+        .product-image { transition: transform 0.5s ease; }
+
+        /* Cart drawer */
+        .cart-drawer { transition: transform 0.3s ease; }
+
+        /* Free shipping bar */
+        .progress-bar { transition: width 0.5s ease; }
+
+        /* Toast notifications */
+        .toast { animation: slideIn 0.3s ease; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Sticky header */
+        .sticky-header { transition: box-shadow 0.3s ease; }
+        .sticky-header.scrolled { box-shadow: 0 2px 20px rgba(0,0,0,0.1); }
+
+        /* Mobile menu */
+        .mobile-menu { transition: all 0.3s ease; }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="bg-white text-gray-900 font-sans" x-data="{ cartOpen: false, mobileMenuOpen: false, searchOpen: false }">
+
+    <!-- 🔔 Toast Notifications -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[9999] space-y-2">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast flex items-center gap-3 px-5 py-4 rounded-lg shadow-lg text-white text-sm max-w-sm
+                    {% if message.tags == 'error' %}bg-red-600
+                    {% elif message.tags == 'success' %}bg-green-600
+                    {% elif message.tags == 'warning' %}bg-yellow-500
+                    {% else %}bg-gray-800{% endif %}"
+                    x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+                    x-transition:leave="transition ease-in duration-300"
+                    x-transition:leave-start="opacity-100 translate-x-0"
+                    x-transition:leave-end="opacity-0 translate-x-full">
+                    <span>
+                        {% if message.tags == 'success' %}<i class="fas fa-check-circle"></i>
+                        {% elif message.tags == 'error' %}<i class="fas fa-times-circle"></i>
+                        {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
+                        {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+                    </span>
+                    <p>{{ message }}</p>
+                    <button @click="show = false" class="ml-auto opacity-70 hover:opacity-100">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- =============== HEADER =============== -->
+    <header class="sticky top-0 z-50 bg-white sticky-header" id="main-header">
+
+        <!-- Top bar -->
+        <div class="bg-brand text-white text-xs text-center py-2 px-4">
+            <p>🚚 Miễn phí vận chuyển cho đơn hàng từ 500.000đ | 📞 Hotline: 1800-URBAN</p>
+        </div>
+
+        <!-- Main navbar -->
+        <nav class="border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+
+                    <!-- Logo -->
+                    <a href="{% url 'home' %}" class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-black rounded-sm flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">UT</span>
+                        </div>
+                        <span class="text-xl font-bold tracking-widest uppercase">Urban Threads</span>
+                    </a>
+
+                    <!-- Desktop Navigation -->
+                    <div class="hidden lg:flex items-center gap-8">
+                        <a href="{% url 'home' %}" class="nav-link text-sm font-medium uppercase tracking-wide hover:text-accent">Trang chủ</a>
+                        <a href="{% url 'product_list' %}" class="nav-link text-sm font-medium uppercase tracking-wide hover:text-accent">Tất cả sản phẩm</a>
+                        {% for cat in main_categories %}
+                        <a href="{{ cat.get_absolute_url }}" class="nav-link text-sm font-medium uppercase tracking-wide hover:text-accent">{{ cat.name }}</a>
+                        {% endfor %}
+                        <a href="{% url 'product_list' %}?on_sale=1" class="nav-link text-sm font-medium uppercase tracking-wide text-red-600 hover:text-red-800">SALE</a>
+                    </div>
+
+                    <!-- Right actions -->
+                    <div class="flex items-center gap-4">
+                        <!-- Search -->
+                        <button @click="searchOpen = !searchOpen" class="p-2 hover:text-accent transition-colors">
+                            <i class="fas fa-search text-lg"></i>
+                        </button>
+
+                        <!-- Wishlist -->
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'wishlist' %}" class="p-2 hover:text-accent transition-colors hidden sm:block">
+                            <i class="far fa-heart text-lg"></i>
+                        </a>
+                        {% endif %}
+
+                        <!-- Account -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="p-2 hover:text-accent transition-colors">
+                                <i class="far fa-user text-lg"></i>
+                            </button>
+                            <div x-show="open" @click.outside="open = false"
+                                 class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 text-sm">
+                                {% if user.is_authenticated %}
+                                    <div class="px-4 py-2 text-gray-500 border-b border-gray-100 text-xs">
+                                        {{ user.get_full_name|default:user.email }}
+                                    </div>
+                                    <a href="{% url 'profile' %}" class="block px-4 py-2 hover:bg-gray-50"><i class="fas fa-user mr-2"></i>Hồ sơ</a>
+                                    <a href="{% url 'order_history' %}" class="block px-4 py-2 hover:bg-gray-50"><i class="fas fa-box mr-2"></i>Đơn hàng</a>
+                                    <a href="{% url 'wishlist' %}" class="block px-4 py-2 hover:bg-gray-50"><i class="far fa-heart mr-2"></i>Yêu thích</a>
+                                    <div class="border-t border-gray-100 mt-2 pt-2">
+                                        <a href="{% url 'logout' %}" class="block px-4 py-2 text-red-600 hover:bg-red-50"><i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất</a>
+                                    </div>
+                                {% else %}
+                                    <a href="{% url 'login' %}" class="block px-4 py-2 hover:bg-gray-50"><i class="fas fa-sign-in-alt mr-2"></i>Đăng nhập</a>
+                                    <a href="{% url 'register' %}" class="block px-4 py-2 hover:bg-gray-50"><i class="fas fa-user-plus mr-2"></i>Đăng ký</a>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Cart -->
+                        <button @click="cartOpen = true" class="relative p-2 hover:text-accent transition-colors">
+                            <i class="fas fa-shopping-bag text-lg"></i>
+                            {% if cart_count > 0 %}
+                            <span class="absolute -top-1 -right-1 bg-black text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                                {{ cart_count }}
+                            </span>
+                            {% endif %}
+                        </button>
+
+                        <!-- Mobile menu toggle -->
+                        <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2">
+                            <i class="fas fa-bars text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search bar -->
+            <div x-show="searchOpen" x-transition class="border-t border-gray-100 bg-gray-50">
+                <div class="max-w-2xl mx-auto px-4 py-4">
+                    <form action="{% url 'search' %}" method="GET" class="flex gap-2">
+                        <input type="text" name="q" placeholder="Tìm kiếm sản phẩm..."
+                               class="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                               autofocus>
+                        <button type="submit" class="px-6 py-3 bg-black text-white rounded-lg font-medium text-sm hover:bg-gray-800 transition">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div x-show="mobileMenuOpen" x-transition class="lg:hidden border-t border-gray-100 bg-white">
+                <div class="px-4 py-4 space-y-3">
+                    <a href="{% url 'home' %}" class="block py-2 font-medium uppercase text-sm border-b border-gray-50">Trang chủ</a>
+                    <a href="{% url 'product_list' %}" class="block py-2 font-medium uppercase text-sm border-b border-gray-50">Tất cả sản phẩm</a>
+                    {% for cat in main_categories %}
+                    <a href="{{ cat.get_absolute_url }}" class="block py-2 font-medium uppercase text-sm border-b border-gray-50">{{ cat.name }}</a>
+                    {% endfor %}
+                    <a href="{% url 'product_list' %}?on_sale=1" class="block py-2 font-medium uppercase text-sm text-red-600">SALE 🔥</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- =============== MINI CART DRAWER =============== -->
+    <div x-show="cartOpen" class="fixed inset-0 z-[100]" x-cloak
+         x-init="$watch('cartOpen', val => { if(val) loadMiniCart(); })">
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-black/50" @click="cartOpen = false"></div>
+
+        <!-- Drawer -->
+        <div class="cart-drawer absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col"
+             x-show="cartOpen"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="translate-x-full"
+             x-transition:enter-end="translate-x-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="translate-x-0"
+             x-transition:leave-end="translate-x-full">
+
+            <div class="flex items-center justify-between p-5 border-b border-gray-100">
+                <h2 class="text-lg font-bold uppercase tracking-wide">Giỏ hàng
+                    <span id="drawer-cart-count" class="text-sm font-normal text-gray-500">({{ cart_count }} sản phẩm)</span>
+                </h2>
+                <button @click="cartOpen = false" class="p-2 hover:bg-gray-100 rounded-full">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto flex flex-col" id="mini-cart-content">
+                <div class="flex-1 flex items-center justify-center py-8">
+                    <div class="text-center text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                        <p class="text-sm">Đang tải...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============== MAIN CONTENT =============== -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- =============== FOOTER =============== -->
+    <footer class="bg-brand text-white mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+
+                <!-- Brand -->
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-white rounded-sm flex items-center justify-center">
+                            <span class="text-black font-bold text-sm">UT</span>
+                        </div>
+                        <span class="text-xl font-bold tracking-widest uppercase">Urban Threads</span>
+                    </div>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Thương hiệu thời trang streetwear Việt Nam. Chất lượng cao, phong cách độc đáo.
+                    </p>
+                    <div class="flex gap-4 mt-6">
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-tiktok text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-youtube text-xl"></i></a>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div>
+                    <h4 class="font-semibold uppercase tracking-wider mb-5 text-sm">Sản phẩm</h4>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        {% for cat in main_categories %}
+                        <li><a href="{{ cat.get_absolute_url }}" class="hover:text-white transition">{{ cat.name }}</a></li>
+                        {% endfor %}
+                        <li><a href="{% url 'product_list' %}?on_sale=1" class="hover:text-white transition">Sale</a></li>
+                        <li><a href="{% url 'product_list' %}?is_new=1" class="hover:text-white transition">New Arrivals</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div>
+                    <h4 class="font-semibold uppercase tracking-wider mb-5 text-sm">Hỗ trợ</h4>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li><a href="{% url 'about' %}" class="hover:text-white transition">Về chúng tôi</a></li>
+                        <li><a href="{% url 'contact' %}" class="hover:text-white transition">Liên hệ</a></li>
+                        <li><a href="{% url 'promotions' %}" class="hover:text-white transition">Khuyến mãi</a></li>
+                        <li><a href="#" class="hover:text-white transition">Hướng dẫn chọn size</a></li>
+                        <li><a href="#" class="hover:text-white transition">Chính sách đổi trả</a></li>
+                        <li><a href="#" class="hover:text-white transition">Câu hỏi thường gặp</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact -->
+                <div>
+                    <h4 class="font-semibold uppercase tracking-wider mb-5 text-sm">Liên hệ</h4>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Đường Thời Trang, Q.1, TP.HCM</li>
+                        <li><i class="fas fa-phone mr-2"></i>1800-URBAN (8272)</li>
+                        <li><i class="fas fa-envelope mr-2"></i>hello@urbanthreads.vn</li>
+                        <li><i class="fas fa-clock mr-2"></i>T2-T7: 9:00 - 22:00</li>
+                    </ul>
+                    <!-- Newsletter -->
+                    <div class="mt-6">
+                        <p class="text-sm text-gray-400 mb-3">Nhận ưu đãi qua email:</p>
+                        <form class="flex gap-2">
+                            <input type="email" placeholder="Email của bạn"
+                                   class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white">
+                            <button type="submit" class="px-4 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-gray-100 transition">
+                                OK
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+                <p>© 2026 Urban Threads. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-gray-300 transition">Điều khoản</a>
+                    <a href="#" class="hover:text-gray-300 transition">Bảo mật</a>
+                    <a href="#" class="hover:text-gray-300 transition">Cookie</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- =============== SCRIPTS =============== -->
+    <script>
+        // Sticky header
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('main-header');
+            header.classList.toggle('scrolled', window.scrollY > 10);
+        });
+
+        // AJAX Cart Add
+        function addToCart(formEl) {
+            const formData = new FormData(formEl);
+            fetch(formEl.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    // Update cart count badges
+                    document.querySelectorAll('.cart-count-badge').forEach(el => el.textContent = data.cart_count);
+                    const drawerCount = document.getElementById('drawer-cart-count');
+                    if (drawerCount) drawerCount.textContent = `(${data.cart_count} sản phẩm)`;
+                    // Reload mini cart content
+                    loadMiniCart();
+                } else {
+                    showToast(data.error || 'Lỗi!', 'error');
+                }
+            })
+            .catch(() => showToast('Có lỗi xảy ra, vui lòng thử lại.', 'error'));
+            return false;
+        }
+
+        // Load mini cart content via AJAX
+        function loadMiniCart() {
+            fetch('{% url "mini_cart" %}', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.text())
+            .then(html => {
+                const container = document.getElementById('mini-cart-content');
+                if (container) container.innerHTML = html;
+            })
+            .catch(() => {
+                const container = document.getElementById('mini-cart-content');
+                if (container) container.innerHTML = '<p class="text-center text-gray-400 py-8">Không thể tải giỏ hàng</p>';
+            });
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const colors = {
+                success: 'bg-green-600', error: 'bg-red-600',
+                warning: 'bg-yellow-500', info: 'bg-gray-800'
+            };
+            const icons = {
+                success: 'fa-check-circle', error: 'fa-times-circle',
+                warning: 'fa-exclamation-triangle', info: 'fa-info-circle'
+            };
+            const toast = document.createElement('div');
+            toast.className = `toast flex items-center gap-3 px-5 py-4 rounded-lg shadow-lg text-white text-sm max-w-sm ${colors[type]}`;
+            toast.innerHTML = `<i class="fas ${icons[type]}"></i><p>${message}</p>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3500);
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

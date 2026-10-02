@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 flex flex-col lg:flex-row gap-8">
+    
+    <!-- Sidebar Filters -->
+    <aside class="w-full lg:w-64 flex-shrink-0">
+        <h2 class="text-xl font-bold uppercase tracking-wide mb-6">Bộ Lọc</h2>
+        <form method="GET" action="" id="filter-form">
+            <!-- Giữ lại query search/sort -->
+            {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
+            {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{% endif %}
+
+            <!-- Danh mục -->
+            <div class="mb-8">
+                <h3 class="font-semibold uppercase text-sm mb-3">Danh mục</h3>
+                <div class="space-y-2">
+                    {% for cat in categories %}
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="radio" name="category" value="{{ cat.slug }}" {% if request.GET.category == cat.slug %}checked{% endif %}
+                               class="w-4 h-4 text-black border-gray-300 focus:ring-black" onchange="this.form.submit()">
+                        <span class="text-sm text-gray-700 hover:text-black">{{ cat.name }}</span>
+                    </label>
+                    {% endfor %}
+                    <a href="?" class="text-xs text-gray-500 hover:text-black underline mt-2 block">Xóa lọc danh mục</a>
+                </div>
+            </div>
+
+            <!-- Giới tính -->
+            <div class="mb-8">
+                <h3 class="font-semibold uppercase text-sm mb-3">Giới tính</h3>
+                <div class="space-y-2">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="radio" name="gender" value="male" {% if request.GET.gender == 'male' %}checked{% endif %} class="w-4 h-4 text-black border-gray-300 focus:ring-black" onchange="this.form.submit()">
+                        <span class="text-sm text-gray-700 hover:text-black">Nam</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="radio" name="gender" value="female" {% if request.GET.gender == 'female' %}checked{% endif %} class="w-4 h-4 text-black border-gray-300 focus:ring-black" onchange="this.form.submit()">
+                        <span class="text-sm text-gray-700 hover:text-black">Nữ</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="radio" name="gender" value="unisex" {% if request.GET.gender == 'unisex' %}checked{% endif %} class="w-4 h-4 text-black border-gray-300 focus:ring-black" onchange="this.form.submit()">
+                        <span class="text-sm text-gray-700 hover:text-black">Unisex</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Size -->
+            <div class="mb-8">
+                <h3 class="font-semibold uppercase text-sm mb-3">Kích cỡ</h3>
+                <div class="flex flex-wrap gap-2">
+                    {% for size in all_sizes %}
+                    <label class="cursor-pointer">
+                        <input type="checkbox" name="size" value="{{ size.id }}" {% if size.id in selected_sizes %}checked{% endif %} class="hidden" onchange="this.form.submit()">
+                        <div class="w-10 h-10 border flex items-center justify-center text-sm transition
+                                    {% if size.id in selected_sizes %}border-black bg-black text-white{% else %}border-gray-200 text-gray-600 hover:border-black{% endif %}">
+                            {{ size.name }}
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Sale -->
+            <div class="mb-8">
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" name="on_sale" value="1" {% if request.GET.on_sale %}checked{% endif %} class="w-4 h-4 text-black border-gray-300 focus:ring-black rounded" onchange="this.form.submit()">
+                    <span class="text-sm font-semibold text-red-600">Hàng Đang Giảm Giá</span>
+                </label>
+            </div>
+        </form>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1">
+        <!-- Header & Sort -->
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-8 pb-4 border-b border-gray-200">
+            <h1 class="text-2xl font-bold uppercase tracking-wide mb-4 sm:mb-0">
+                {% if request.GET.q %}Kết quả tìm kiếm cho "{{ request.GET.q }}"
+                {% else %}Tất Cả Sản Phẩm{% endif %}
+            </h1>
+            
+            <div class="flex items-center gap-3 text-sm">
+                <span class="text-gray-500">{{ products.paginator.count }} sản phẩm</span>
+                <select form="filter-form" name="sort" onchange="this.form.submit()" class="border-gray-300 rounded-lg text-sm focus:ring-black focus:border-black py-2 pl-3 pr-8">
+                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Mới nhất</option>
+                    <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Giá: Thấp đến cao</option>
+                    <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Giá: Cao xuống thấp</option>
+                    <option value="best_seller" {% if current_sort == 'best_seller' %}selected{% endif %}>Bán chạy nhất</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            {% for product in products %}
+                {% include 'products/includes/product_card.html' with product=product %}
+            {% empty %}
+                <div class="col-span-full py-20 text-center">
+                    <i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900">Không tìm thấy sản phẩm nào!</h3>
+                    <p class="text-gray-500 mt-2">Vui lòng thử thay đổi bộ lọc hoặc từ khóa tìm kiếm.</p>
+                    <a href="{% url 'product_list' %}" class="inline-block mt-6 px-6 py-2 border border-black text-sm uppercase tracking-wide hover:bg-black hover:text-white transition">Xóa bộ lọc</a>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if products.has_other_pages %}
+        <div class="mt-12 flex justify-center">
+            <nav class="flex gap-2">
+                {% if products.has_previous %}
+                    <a href="?page={{ products.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="w-10 h-10 flex items-center justify-center border border-gray-300 hover:border-black transition">
+                        <i class="fas fa-chevron-left text-xs"></i>
+                    </a>
+                {% endif %}
+
+                {% for i in products.paginator.page_range %}
+                    {% if products.number == i %}
+                        <span class="w-10 h-10 flex items-center justify-center bg-black text-white font-medium">{{ i }}</span>
+                    {% else %}
+                        <a href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="w-10 h-10 flex items-center justify-center border border-gray-300 hover:border-black transition text-gray-600 hover:text-black">
+                            {{ i }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if products.has_next %}
+                    <a href="?page={{ products.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="w-10 h-10 flex items-center justify-center border border-gray-300 hover:border-black transition">
+                        <i class="fas fa-chevron-right text-xs"></i>
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

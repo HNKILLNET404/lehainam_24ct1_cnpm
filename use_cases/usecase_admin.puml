@@ -1,0 +1,66 @@
+@startuml
+title PHÂN HỆ QUẢN TRỊ VIÊN (ADMIN) — USE CASE CHI TIẾT
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+
+skinparam actor {
+    BackgroundColor #FEF9E7
+    BorderColor #D9531E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A5276
+}
+
+actor "Quản trị viên (Admin)" as Admin
+
+rectangle "Phân Hệ Quản Trị (Admin Dashboard)" {
+    
+    usecase "Đăng nhập trang quản trị" as UC_AdminLogin
+    
+    package "Quản lý Sản phẩm & Kho" {
+        usecase "Thêm / Sửa / Xóa sản phẩm" as UC_CRUD_Product
+        usecase "Quản lý danh mục & phân loại" as UC_CRUD_Category
+        usecase "Quản lý biến thể (Size, Màu, SKU)" as UC_Manage_Variants
+        usecase "Kiểm kê & Cập nhật tồn kho" as UC_Stock_Warning
+    }
+
+    package "Quản lý Đơn hàng & Thanh toán" {
+        usecase "Xem danh sách & Lọc đơn hàng" as UC_View_Orders
+        usecase "Cập nhật trạng thái vòng đời đơn" as UC_Update_Status
+        usecase "Xem trước & Phóng to ảnh biên lai" as UC_Preview_Receipt
+        usecase "Duyệt thanh toán VietQR (1-click)" as UC_Confirm_Payment
+    }
+
+    package "Tiếp thị & Người dùng" {
+        usecase "Quản lý mã giảm giá (Coupon)" as UC_Manage_Coupon
+        usecase "Quản lý Banner quảng cáo" as UC_Manage_Banner
+        usecase "Quản lý tài khoản khách hàng" as UC_Manage_Users
+        usecase "Kiểm duyệt đánh giá sản phẩm" as UC_Moderate_Reviews
+    }
+}
+
+Admin --> UC_AdminLogin
+Admin --> UC_CRUD_Product
+Admin --> UC_CRUD_Category
+Admin --> UC_Manage_Variants
+Admin --> UC_Stock_Warning
+
+Admin --> UC_View_Orders
+Admin --> UC_Update_Status
+Admin --> UC_Confirm_Payment
+
+Admin --> UC_Manage_Coupon
+Admin --> UC_Manage_Banner
+Admin --> UC_Manage_Users
+Admin --> UC_Moderate_Reviews
+
+UC_Confirm_Payment ..> UC_Preview_Receipt : <<include>>
+UC_Confirm_Payment ..> UC_Update_Status : <<include>>
+
+@enduml

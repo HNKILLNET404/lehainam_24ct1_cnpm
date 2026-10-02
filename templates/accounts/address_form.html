@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }} - Urban Threads{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="flex items-center gap-4 mb-8">
+        <a href="{% url 'address_list' %}" class="text-gray-500 hover:text-black transition">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="text-2xl font-bold uppercase tracking-tight">{{ title }}</h1>
+    </div>
+
+    <div class="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <div class="flex items-center gap-4 mt-8 pt-4 border-t border-gray-100">
+                <button type="submit" class="px-8 py-3 bg-black text-white text-sm font-semibold uppercase tracking-wider rounded hover:bg-gray-800 transition">
+                    Lưu địa chỉ
+                </button>
+                <a href="{% url 'address_list' %}" class="px-6 py-3 border border-gray-300 text-gray-700 text-sm font-semibold uppercase tracking-wider rounded hover:bg-gray-50 transition">
+                    Hủy
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

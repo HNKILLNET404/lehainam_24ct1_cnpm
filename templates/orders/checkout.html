@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12" x-data="checkoutForm()">
+    <h1 class="text-3xl font-bold uppercase tracking-tight mb-8">Thanh toán</h1>
+
+    <div class="flex flex-col lg:flex-row gap-12">
+        <!-- Left Column: Form -->
+        <div class="w-full lg:w-3/5">
+            <form action="{% url 'checkout' %}" method="POST" id="checkout-form">
+                {% csrf_token %}
+                
+                <!-- Địa chỉ đã lưu (Nếu có) -->
+                {% if addresses %}
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold uppercase tracking-wide mb-4 pb-2 border-b border-gray-200">Địa chỉ của bạn</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        {% for address in addresses %}
+                        <label class="border p-4 rounded cursor-pointer transition-colors" :class="selectedAddress == '{{ address.id }}' ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-black'">
+                            <input type="radio" name="address_id" value="{{ address.id }}" class="hidden" x-model="selectedAddress" 
+                                   @change="fillAddress('{{ address.full_name }}', '{{ address.phone }}', '{{ address.province }}', '{{ address.district }}', '{{ address.ward }}', '{{ address.street_address }}')">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-semibold">{{ address.full_name }}</span>
+                                {% if address.is_default %}<span class="text-[10px] bg-black text-white px-2 py-0.5 rounded uppercase">Mặc định</span>{% endif %}
+                            </div>
+                            <p class="text-sm text-gray-600 mb-1"><i class="fas fa-phone w-4 text-gray-400"></i> {{ address.phone }}</p>
+                            <p class="text-sm text-gray-600 leading-tight"><i class="fas fa-map-marker-alt w-4 text-gray-400"></i> {{ address.street_address }}, {{ address.ward }}, {{ address.district }}, {{ address.province }}</p>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <label class="inline-flex items-center gap-2 cursor-pointer text-sm font-medium">
+                        <input type="radio" name="address_id" value="new" x-model="selectedAddress" @change="clearAddress()" class="text-black focus:ring-black">
+                        Sử dụng địa chỉ mới
+                    </label>
+                </div>
+                {% endif %}
+
+                <!-- Form Nhập Địa Chỉ -->
+                <div class="mb-8" x-show="selectedAddress === 'new' || {{ addresses|length }} === 0" x-transition>
+                    <h2 class="text-xl font-bold uppercase tracking-wide mb-4 pb-2 border-b border-gray-200">Thông tin giao hàng</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Họ và tên *</label>
+                            <input type="text" name="full_name" x-model="form.fullName" required class="w-full border-gray-300 rounded focus:border-black focus:ring-black">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Số điện thoại *</label>
+                            <input type="text" name="phone" x-model="form.phone" required class="w-full border-gray-300 rounded focus:border-black focus:ring-black">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                        <input type="email" name="email" x-model="form.email" required class="w-full border-gray-300 rounded focus:border-black focus:ring-black">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tỉnh / Thành phố *</label>
+                            <input type="text" name="province" x-model="form.province" required class="w-full border-gray-300 rounded focus:border-black focus:ring-black">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Quận / Huyện *</label>
+                            <input type="text" name="district" x-model="form.district" required class="w-full border-gray-300 rounded focus:border-black focus:ring-black">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Phường / Xã *</label>
+                            <input type="text" name="ward" x-model="form.ward" required class="w-full border-gray-300 rounded focus:border-black focus:ring-black">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ cụ thể (Số nhà, đường) *</label>
+                        <input type="text" name="street_address" x-model="form.street" required class="w-full border-gray-300 rounded focus:border-black focus:ring-black">
+                    </div>
+                </div>
+
+                <!-- Phương thức vận chuyển -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold uppercase tracking-wide mb-4 pb-2 border-b border-gray-200">Phương thức vận chuyển</h2>
+                    <div class="space-y-3">
+                        <label class="flex items-center justify-between p-4 border rounded cursor-pointer transition-colors" :class="shippingMethod == 'standard' ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-black'">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="shipping_method" value="standard" x-model="shippingMethod" class="text-black focus:ring-black">
+                                <div>
+                                    <span class="block font-semibold">Giao hàng tiêu chuẩn</span>
+                                    <span class="text-sm text-gray-500">Dự kiến 3-5 ngày</span>
+                                </div>
+                            </div>
+                            <span class="font-semibold" x-text="formatPrice({{ shipping_fees.standard }})"></span>
+                        </label>
+
+                        <label class="flex items-center justify-between p-4 border rounded cursor-pointer transition-colors" :class="shippingMethod == 'express' ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-black'">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="shipping_method" value="express" x-model="shippingMethod" class="text-black focus:ring-black">
+                                <div>
+                                    <span class="block font-semibold">Giao hàng nhanh</span>
+                                    <span class="text-sm text-gray-500">Dự kiến 1-2 ngày</span>
+                                </div>
+                            </div>
+                            <span class="font-semibold" x-text="formatPrice({{ shipping_fees.express }})"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Phương thức thanh toán -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold uppercase tracking-wide mb-4 pb-2 border-b border-gray-200">Phương thức thanh toán</h2>
+                    <div class="p-4 border border-black bg-gray-50 rounded">
+                        <div class="flex items-center gap-3 mb-2">
+                            <input type="radio" checked class="text-black focus:ring-black">
+                            <span class="font-semibold">Thanh toán chuyển khoản (QR Code)</span>
+                        </div>
+                        <p class="text-sm text-gray-600 ml-7">Hệ thống sẽ tạo mã QR tự động để bạn quét thanh toán nhanh chóng qua ứng dụng ngân hàng hoặc ví điện tử (MoMo, ZaloPay, VNPay...)</p>
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Ghi chú đơn hàng (Tùy chọn)</label>
+                    <textarea name="notes" rows="3" class="w-full border-gray-300 rounded focus:border-black focus:ring-black"></textarea>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- Right Column: Order Summary -->
+        <div class="w-full lg:w-2/5">
+            <div class="bg-gray-50 p-6 border border-gray-200 sticky top-24">
+                <h2 class="text-lg font-bold uppercase tracking-wide mb-6 pb-4 border-b border-gray-200">Đơn hàng của bạn ({{ cart.total_items }})</h2>
+                
+                <!-- Items list (scrollable) -->
+                <div class="max-h-64 overflow-y-auto mb-6 pr-2 space-y-4">
+                    {% for item in cart.items.all %}
+                    <div class="flex gap-4">
+                        <div class="w-16 h-20 bg-gray-100 flex-shrink-0 relative border border-gray-200">
+                            {% if item.variant.product.main_image %}
+                            <img src="{{ item.variant.product.main_image.image.url }}" class="w-full h-full object-cover">
+                            {% endif %}
+                            <span class="absolute -top-2 -right-2 w-5 h-5 bg-gray-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">{{ item.quantity }}</span>
+                        </div>
+                        <div class="flex-1 flex flex-col justify-center">
+                            <h4 class="text-sm font-medium leading-tight line-clamp-2 mb-1">{{ item.variant.product.name }}</h4>
+                            <p class="text-xs text-gray-500 mb-1">{{ item.variant.color.name }} / {{ item.variant.size.name }}</p>
+                            <p class="text-sm font-semibold">{{ item.variant.final_price|currency }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Totals -->
+                <div class="space-y-3 text-sm mb-6 pt-4 border-t border-gray-200">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Tạm tính</span>
+                        <span class="font-medium">{{ cart.subtotal|currency }}</span>
+                    </div>
+                    
+                    {% if cart.discount_amount > 0 %}
+                    <div class="flex justify-between text-green-600">
+                        <span>Giảm giá ({{ cart.coupon_code }})</span>
+                        <span>-{{ cart.discount_amount|currency }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Phí vận chuyển</span>
+                        <span class="font-medium" x-text="shippingCost > 0 ? formatPrice(shippingCost) : 'Miễn phí'"></span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-end mb-8 pt-4 border-t border-gray-200">
+                    <span class="text-base font-bold uppercase">Tổng thanh toán</span>
+                    <span class="text-2xl font-bold" x-text="formatPrice(finalTotal)"></span>
+                </div>
+
+                <button type="submit" form="checkout-form" class="w-full py-4 bg-black text-white text-center font-bold uppercase tracking-wider hover:bg-gray-800 transition rounded-sm">
+                    Xác Nhận & Thanh Toán QR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('checkoutForm', () => ({
+            selectedAddress: '{% if addresses %}{{ addresses.0.id }}{% else %}new{% endif %}',
+            shippingMethod: 'standard',
+            subtotal: {{ cart.total }},
+            freeThreshold: {{ free_threshold }},
+            
+            form: {
+                fullName: '{% if addresses %}{{ addresses.0.full_name }}{% else %}{{ user.get_full_name }}{% endif %}',
+                phone: '{% if addresses %}{{ addresses.0.phone }}{% else %}{{ user.phone|default:"" }}{% endif %}',
+                email: '{{ user.email }}',
+                province: '{% if addresses %}{{ addresses.0.province }}{% endif %}',
+                district: '{% if addresses %}{{ addresses.0.district }}{% endif %}',
+                ward: '{% if addresses %}{{ addresses.0.ward }}{% endif %}',
+                street: '{% if addresses %}{{ addresses.0.street_address }}{% endif %}'
+            },
+
+            get shippingCost() {
+                if (this.subtotal >= this.freeThreshold) return 0;
+                if (this.shippingMethod === 'standard') return {{ shipping_fees.standard }};
+                if (this.shippingMethod === 'express') return {{ shipping_fees.express }};
+                if (this.shippingMethod === 'same_day') return {{ shipping_fees.same_day }};
+                return 0;
+            },
+
+            get finalTotal() {
+                return this.subtotal + this.shippingCost;
+            },
+
+            formatPrice(val) {
+                return Number(val).toLocaleString('en-US') + 'đ';
+            },
+
+            fillAddress(name, phone, prov, dist, ward, street) {
+                this.form.fullName = name;
+                this.form.phone = phone;
+                this.form.province = prov;
+                this.form.district = dist;
+                this.form.ward = ward;
+                this.form.street = street;
+            },
+
+            clearAddress() {
+                this.form.fullName = '{{ user.get_full_name }}';
+                this.form.phone = '{{ user.phone|default:"" }}';
+                this.form.province = '';
+                this.form.district = '';
+                this.form.ward = '';
+                this.form.street = '';
+            }
+        }))
+    })
+</script>
+{% endblock %}

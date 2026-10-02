@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Lịch sử đơn hàng - Urban Threads{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <h1 class="text-3xl font-bold uppercase tracking-tight mb-8">Lịch sử đơn hàng</h1>
+
+    <div class="flex flex-col lg:flex-row gap-10">
+        <!-- Sidebar (same as profile) -->
+        <aside class="w-full lg:w-64 flex-shrink-0">
+            <div class="bg-white border border-gray-200 rounded-xl p-6">
+                <div class="flex flex-col items-center mb-6">
+                    <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-3xl font-bold text-gray-400 mb-3">
+                        {{ user.first_name|first|default:user.email|first|upper }}
+                    </div>
+                    <h3 class="font-semibold text-lg">{{ user.get_full_name|default:user.email }}</h3>
+                </div>
+                <nav class="space-y-1 text-sm">
+                    <a href="{% url 'profile' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-user w-4"></i> Hồ sơ cá nhân
+                    </a>
+                    <a href="{% url 'order_history' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-black text-white font-medium">
+                        <i class="fas fa-box w-4"></i> Lịch sử đơn hàng
+                    </a>
+                    <a href="{% url 'wishlist' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50">
+                        <i class="far fa-heart w-4"></i> Yêu thích
+                    </a>
+                    <a href="{% url 'address_list' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-map-marker-alt w-4"></i> Địa chỉ
+                    </a>
+                    <a href="{% url 'logout' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50">
+                        <i class="fas fa-sign-out-alt w-4"></i> Đăng xuất
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main: Orders List -->
+        <div class="flex-1">
+            {% if orders %}
+            <div class="space-y-4">
+                {% for order in orders %}
+                <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 border-b border-gray-100 gap-4">
+                        <div>
+                            <div class="flex items-center gap-3 mb-1">
+                                <span class="font-bold text-sm uppercase tracking-wider">{{ order.order_number }}</span>
+                                <span class="text-xs px-2 py-1 rounded-full font-semibold uppercase
+                                    {% if order.status == 'delivered' %}bg-green-100 text-green-700
+                                    {% elif order.status == 'cancelled' %}bg-red-100 text-red-700
+                                    {% elif order.status == 'shipping' %}bg-indigo-100 text-indigo-700
+                                    {% elif order.status == 'processing' %}bg-purple-100 text-purple-700
+                                    {% elif order.status == 'confirmed' %}bg-blue-100 text-blue-700
+                                    {% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-500">Đặt ngày {{ order.created_at|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <p class="text-lg font-bold">{{ order.total|currency }}</p>
+                            <p class="text-xs text-gray-500">{{ order.items.count }} sản phẩm</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Items preview -->
+                    <div class="p-5 flex items-center gap-4">
+                        <div class="flex -space-x-3">
+                            {% for item in order.items.all|slice:":4" %}
+                            <div class="w-12 h-16 bg-gray-100 border-2 border-white rounded overflow-hidden">
+                                {% if item.product_image %}
+                                <img src="{{ item.product_image }}" alt="{{ item.product_name }}" class="w-full h-full object-cover">
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-sm text-gray-600 flex-1 ml-2">
+                            {% for item in order.items.all|slice:":2" %}
+                            <p class="line-clamp-1">{{ item.product_name }}{% if item.size_name %} ({{ item.size_name }}){% endif %} x{{ item.quantity }}</p>
+                            {% endfor %}
+                            {% if order.items.count > 2 %}
+                            <p class="text-gray-400">và {{ order.items.count|add:"-2" }} sản phẩm khác...</p>
+                            {% endif %}
+                        </div>
+                        <div class="flex gap-2 flex-shrink-0">
+                            <a href="{% url 'order_detail' order.id %}" class="px-4 py-2 border border-black text-sm font-medium uppercase hover:bg-black hover:text-white transition">
+                                Xem chi tiết
+                            </a>
+                            {% if order.status in 'pending,confirmed' %}
+                            <form action="{% url 'order_cancel' order.id %}" method="POST" onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">
+                                {% csrf_token %}
+                                <button type="submit" class="px-4 py-2 border border-red-300 text-red-600 text-sm font-medium uppercase hover:bg-red-600 hover:text-white hover:border-red-600 transition">
+                                    Hủy đơn
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-20 bg-gray-50 border border-gray-200 rounded-xl">
+                <i class="fas fa-box text-6xl text-gray-300 mb-6"></i>
+                <h2 class="text-2xl font-bold uppercase tracking-wide mb-4">Chưa có đơn hàng nào</h2>
+                <p class="text-gray-500 mb-8">Bạn chưa có đơn hàng nào. Hãy bắt đầu mua sắm!</p>
+                <a href="{% url 'product_list' %}" class="inline-block px-8 py-4 bg-black text-white font-semibold uppercase tracking-wider hover:bg-gray-800 transition">
+                    Mua sắm ngay
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

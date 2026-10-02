@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Liên hệ — Urban Threads{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    
+    <div class="text-center mb-14">
+        <p class="text-accent text-sm uppercase tracking-widest mb-2">Luôn sẵn sàng hỗ trợ</p>
+        <h1 class="text-4xl font-bold uppercase tracking-tight">Liên hệ với chúng tôi</h1>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        
+        <!-- Contact Info -->
+        <div class="space-y-8">
+            <div class="flex items-start gap-5">
+                <div class="w-12 h-12 bg-black rounded-full flex-shrink-0 flex items-center justify-center">
+                    <i class="fas fa-map-marker-alt text-white"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-1">Showroom</h3>
+                    <p class="text-gray-500">123 Đường Thời Trang, Phường Bến Nghé<br>Quận 1, TP. Hồ Chí Minh</p>
+                    <p class="text-sm text-gray-400 mt-1">T2 – T7: 9:00 – 22:00 | CN: 10:00 – 20:00</p>
+                </div>
+            </div>
+            
+            <div class="flex items-start gap-5">
+                <div class="w-12 h-12 bg-black rounded-full flex-shrink-0 flex items-center justify-center">
+                    <i class="fas fa-phone text-white"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-1">Hotline</h3>
+                    <p class="text-gray-500">1800-URBAN (1800-8272)</p>
+                    <p class="text-sm text-gray-400 mt-1">Miễn phí cuộc gọi — 8:00 đến 22:00 hàng ngày</p>
+                </div>
+            </div>
+            
+            <div class="flex items-start gap-5">
+                <div class="w-12 h-12 bg-black rounded-full flex-shrink-0 flex items-center justify-center">
+                    <i class="fas fa-envelope text-white"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-1">Email</h3>
+                    <p class="text-gray-500">hello@urbanthreads.vn</p>
+                    <p class="text-sm text-gray-400 mt-1">Phản hồi trong vòng 24 giờ làm việc</p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-5">
+                <div class="w-12 h-12 bg-black rounded-full flex-shrink-0 flex items-center justify-center">
+                    <i class="fab fa-facebook text-white"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-1">Mạng xã hội</h3>
+                    <div class="flex gap-4 mt-2">
+                        <a href="#" class="flex items-center gap-2 text-sm text-gray-600 hover:text-black transition">
+                            <i class="fab fa-facebook text-blue-600 text-lg"></i> Facebook
+                        </a>
+                        <a href="#" class="flex items-center gap-2 text-sm text-gray-600 hover:text-black transition">
+                            <i class="fab fa-instagram text-pink-500 text-lg"></i> Instagram
+                        </a>
+                        <a href="#" class="flex items-center gap-2 text-sm text-gray-600 hover:text-black transition">
+                            <i class="fab fa-tiktok text-lg"></i> TikTok
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map placeholder -->
+            <div class="rounded-2xl overflow-hidden border border-gray-200 h-48 bg-gray-100 flex items-center justify-center">
+                <div class="text-center text-gray-400">
+                    <i class="fas fa-map text-4xl mb-2"></i>
+                    <p class="text-sm">Bản đồ Google Maps</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="bg-gray-50 rounded-2xl p-8">
+            <h2 class="text-2xl font-bold mb-6">Gửi tin nhắn cho chúng tôi</h2>
+            
+            {% if messages %}
+            {% for message in messages %}
+            <div class="mb-4 px-4 py-3 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <form method="POST" class="space-y-5">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Họ tên *</label>
+                        <input type="text" name="name" required
+                               class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Số điện thoại</label>
+                        <input type="tel" name="phone"
+                               class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm bg-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Email *</label>
+                    <input type="email" name="email" required
+                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm bg-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Chủ đề</label>
+                    <select name="subject" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm bg-white">
+                        <option value="order">Hỏi về đơn hàng</option>
+                        <option value="product">Hỏi về sản phẩm</option>
+                        <option value="return">Đổi trả hàng</option>
+                        <option value="payment">Vấn đề thanh toán</option>
+                        <option value="other">Khác</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Nội dung *</label>
+                    <textarea name="message" rows="5" required
+                              placeholder="Nhập nội dung tin nhắn của bạn..."
+                              class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm bg-white resize-none"></textarea>
+                </div>
+                <button type="submit"
+                        class="w-full py-4 bg-black text-white font-bold uppercase tracking-wider text-sm rounded-lg hover:bg-gray-800 transition">
+                    Gửi tin nhắn <i class="fas fa-paper-plane ml-2"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

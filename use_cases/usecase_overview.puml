@@ -1,0 +1,100 @@
+@startuml
+title BIỂU ĐỒ USE CASE TỔNG QUAN — HỆ THỐNG URBAN THREADS
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+skinparam actor {
+    BackgroundColor #FEF9E7
+    BorderColor #D9531E
+    FontSize 13
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A5276
+    ArrowColor #2C3E50
+    FontSize 12
+}
+
+' ================= ACTORS =================
+actor "Khách vãng lai\n(Guest)" as Guest
+actor "Khách hàng\n(Customer)" as Customer
+actor "Quản trị viên\n(Admin)" as Admin
+actor "Hệ thống\nVietQR" as VietQR <<Service>>
+
+Customer -up-|> Guest
+
+' ================= SYSTEM BOUNDARY =================
+rectangle "Hệ Thống Website Thời Trang Urban Threads" {
+
+    ' --- Nhóm Tài khoản ---
+    package "Tài khoản & Xác thực" {
+        usecase "UC01: Đăng ký tài khoản" as UC_Register
+        usecase "UC02: Đăng nhập / Đăng xuất" as UC_Login
+        usecase "UC03: Quản lý hồ sơ cá nhân" as UC_Profile
+        usecase "UC04: Quản lý sổ địa chỉ" as UC_Address
+        usecase "UC05: Xem lịch sử đơn hàng" as UC_OrderHistory
+    }
+
+    ' --- Nhóm Sản phẩm & Mua sắm ---
+    package "Sản phẩm & Mua hàng" {
+        usecase "UC06: Xem danh mục & Lọc sản phẩm" as UC_Browse
+        usecase "UC07: Tìm kiếm tiếng Việt thông minh" as UC_Search
+        usecase "UC08: Xem chi tiết & Biến thể (Size/Màu)" as UC_Detail
+        usecase "UC09: Quản lý danh sách yêu thích" as UC_Wishlist
+        usecase "UC10: Đánh giá & Phản hồi sản phẩm" as UC_Review
+        usecase "UC11: Quản lý giỏ hàng & Mini Cart" as UC_Cart
+        usecase "UC12: Áp dụng mã giảm giá (Coupon)" as UC_Coupon
+        usecase "UC13: Đặt hàng (Checkout)" as UC_Checkout
+        usecase "UC14: Quét mã thanh toán VietQR" as UC_PayQR
+        usecase "UC15: Tải lên biên lai chuyển khoản" as UC_Receipt
+    }
+
+    ' --- Nhóm Quản trị (Admin) ---
+    package "Quản trị Hệ thống (Admin Dashboard)" {
+        usecase "UC16: Quản lý danh mục & sản phẩm" as UC_AdminProduct
+        usecase "UC17: Quản lý biến thể & tồn kho SKU" as UC_AdminStock
+        usecase "UC18: Quản lý & Cập nhật đơn hàng" as UC_AdminOrder
+        usecase "UC19: Duyệt thanh toán & Đối soát bill" as UC_AdminPayment
+        usecase "UC20: Quản lý khuyến mãi & Banner" as UC_AdminPromo
+        usecase "UC21: Quản lý tài khoản khách hàng" as UC_AdminUser
+    }
+}
+
+' ================= CONNECTIONS =================
+' Guest
+Guest --> UC_Register
+Guest --> UC_Login
+Guest --> UC_Browse
+Guest --> UC_Search
+Guest --> UC_Detail
+Guest --> UC_Cart
+
+' Customer
+Customer --> UC_Profile
+Customer --> UC_Address
+Customer --> UC_OrderHistory
+Customer --> UC_Wishlist
+Customer --> UC_Review
+Customer --> UC_Checkout
+
+' Relationships (include / extend)
+UC_Cart <.. UC_Coupon : <<extend>>
+UC_Checkout ..> UC_PayQR : <<include>>
+UC_Checkout ..> UC_Receipt : <<include>>
+UC_PayQR --> VietQR
+
+' Admin
+Admin --> UC_AdminProduct
+Admin --> UC_AdminStock
+Admin --> UC_AdminOrder
+Admin --> UC_AdminPayment
+Admin --> UC_AdminPromo
+Admin --> UC_AdminUser
+
+@enduml
