@@ -61,7 +61,7 @@ Trang quản trị Admin: **`http://127.0.0.1:8000/admin/`**
 ## 🔐 4. Tài khoản quản trị & Dữ liệu mẫu
 * **Tài khoản Admin:**
   * Email: `admin@urbanthreads.com`
-  * Mật khẩu: `admin123`
+  * Mật khẩu: ``
 * **Mã giảm giá mẫu:**
   * `WELCOME10`: Giảm 10% đơn hàng
   * `GIAM50K`: Giảm 50.000đ cho đơn từ 300.000đ
