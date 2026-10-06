@@ -1,0 +1,49 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+
+actor "Khách hàng" as User
+participant "[Giao diện]\nD:/urban-threads/templates/products/product_detail.html" as UI
+participant "[Xử lý nghiệp vụ]\nD:/urban-threads/cart/views.py" as BE
+database "[Cơ sở dữ liệu]\nD:/urban-threads/db.sqlite3\n(Bảng: cart_cart / cart_cartitem)" as DB
+
+box "Tên chức năng: Thêm sản phẩm vào giỏ hàng" #LightYellow
+end box
+
+User -> UI : 1. Yêu cầu xem chi tiết sản phẩm
+activate UI
+UI --> User : 2. Hiển thị thông tin sản phẩm, tùy chọn Size và Màu sắc
+deactivate UI
+
+User -> UI : 3. Chọn biến thể (size, màu), số lượng & bấm "Thêm vào giỏ hàng"
+activate UI
+UI -> BE : 4. Gửi yêu cầu thêm sản phẩm AJAX (POST: variant_id, quantity)
+activate BE
+
+BE -> DB : 5. Truy vấn kiểm tra số lượng tồn kho của biến thể (stock > 0)?
+activate DB
+DB --> BE : 6. Trả về kết quả kiểm tra tồn kho
+deactivate DB
+
+alt Điều kiện: Còn hàng trong kho (stock > 0)
+    BE -> DB : 7. Lưu bản ghi vào bảng cart_cartitem (INSERT hoặc UPDATE số lượng)
+    activate DB
+    DB --> BE : 8. Trả về kết quả lưu thành công
+    deactivate DB
+    BE --> UI : 9. Trả về phản hồi JSON {success: True, cart_count: tổng_số_lượng}
+    deactivate BE
+    activate UI
+    UI --> User : 10. Ngăn kéo Mini Cart trượt ra, thông báo "Đã thêm vào giỏ hàng thành công"
+    deactivate UI
+else Điều kiện: Sản phẩm đã hết hàng (stock = 0)
+    activate BE
+    BE --> UI : 7*. Trả về phản hồi JSON {error: "Sản phẩm đã hết hàng"}
+    deactivate BE
+    activate UI
+    UI --> User : 8*. Hiển thị thông báo lỗi "Sản phẩm đã hết hàng" trên giao diện
+    deactivate UI
+end
+
+@enduml

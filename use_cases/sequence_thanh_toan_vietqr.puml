@@ -1,0 +1,58 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+
+actor "Khách hàng" as User
+participant "[Giao diện]\nD:/urban-threads/templates/payments/payment_qr.html" as UI
+participant "[Xử lý nghiệp vụ]\nD:/urban-threads/payments/views.py" as BE
+database "[Cơ sở dữ liệu]\nD:/urban-threads/db.sqlite3\n(Bảng: payments_payment / orders_order)" as DB
+participant "[Dịch vụ ngoài]\nVietQR API (https://img.vietqr.io)" as QR
+
+box "Tên chức năng: Thanh toán quét mã VietQR" #LightYellow
+end box
+
+User -> UI : 1. Yêu cầu thanh toán đơn hàng sau khi đặt mua
+activate UI
+UI -> BE : 2. Gửi yêu cầu khởi tạo trang thanh toán (GET: order_id)
+activate BE
+
+BE -> DB : 3. Truy vấn lấy thông tin đơn hàng từ bảng orders_order
+activate DB
+DB --> BE : 4. Trả về thông tin đơn hàng (mã đơn hàng, tổng tiền cần thanh toán)
+deactivate DB
+
+BE -> QR : 5. Gửi request sinh mã QR thanh toán động Napas247 (bank_id, account_no, amount, order_number)
+activate QR
+QR --> BE : 6. Trả về hình ảnh mã VietQR động chứa sẵn số tiền và nội dung
+deactivate QR
+
+BE -> DB : 7. Lưu bản ghi thanh toán vào bảng payments_payment (trạng thái: pending)
+activate DB
+DB --> BE : 8. Trả về kết quả lưu thành công
+deactivate DB
+
+BE --> UI : 9. Trả về dữ liệu trang thanh toán (ảnh mã QR, thông tin ngân hàng, đơn hàng)
+deactivate BE
+activate UI
+UI --> User : 10. Hiển thị mã VietQR động và hướng dẫn khách hàng quét mã chuyển khoản
+deactivate UI
+
+User -> UI : 11. Quét mã thanh toán & tải lên ảnh biên lai chuyển khoản thành công
+activate UI
+UI -> BE : 12. Gửi file ảnh biên lai chuyển khoản (POST: receipt_image)
+activate BE
+
+BE -> DB : 13. Cập nhật bảng payments_payment (status: uploaded) và bảng orders_order (status: confirmed)
+activate DB
+DB --> BE : 14. Trả về kết quả cập nhật thành công
+deactivate DB
+
+BE --> UI : 15. Trả về phản hồi chuyển hướng sang trang xác nhận đặt hàng thành công
+deactivate BE
+activate UI
+UI --> User : 16. Hiển thị màn hình thông báo "Đặt hàng và nộp biên lai thanh toán thành công!"
+deactivate UI
+
+@enduml

@@ -1,50 +1,49 @@
 @startuml
 skinparam sequenceMessageAlign center
-skinparam roundcorner 5
 skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam defaultFontSize 11
 
-actor "Khach_hang" as User
+actor "Khách hàng" as User
 participant "[Giao diện]\nD:/urban-threads/templates/accounts/register.html" as UI
 participant "[Xử lý nghiệp vụ]\nD:/urban-threads/accounts/views.py" as BE
 database "[Cơ sở dữ liệu]\nD:/urban-threads/db.sqlite3\n(Bảng: accounts_user)" as DB
 
-box "tên chức năng: Đăng ký tài khoản" #LightYellow
+box "Tên chức năng: Đăng ký tài khoản" #LightYellow
 end box
 
-User -> UI : 1. yêu cầu truy cập chức năng đăng ký
+User -> UI : 1. Yêu cầu truy cập chức năng đăng ký
 activate UI
-UI --> User : 2. yêu cầu nhập thông tin form đăng ký
+UI --> User : 2. Hiển thị form đăng ký (Email, Họ và tên, SĐT, Password, Nhập lại password)
 deactivate UI
 
-User -> UI : 3. nhập thông tin (email, password, nhập lại password, họ tên)
+User -> UI : 3. Nhập thông tin (email, họ và tên, phone, password, nhập lại password)
 activate UI
-UI -> BE : 4. gửi dữ liệu form đăng ký (POST)
+UI -> BE : 4. Gửi dữ liệu form đăng ký (POST)
 activate BE
 
-BE -> DB : 5. truy vấn kiểm tra email đã tồn tại?
+BE -> DB : 5. Truy vấn kiểm tra email đã tồn tại trong CSDL chưa?
 activate DB
-DB --> BE : 6. return kết quả kiểm tra
+DB --> BE : 6. Trả về kết quả kiểm tra
 deactivate DB
 
-alt đk kiểm tra: Email chưa tồn tại & Mật khẩu khớp
-    BE -> BE : 7. băm mật khẩu: PBKDF2_SHA256(password)
-    BE -> DB : 8. lưu thông tin User mới (INSERT INTO accounts_user)
+alt Điều kiện: Email chưa tồn tại & Password trùng khớp
+    BE -> BE : 7. Băm mật khẩu bảo mật (PBKDF2_SHA256)
+    BE -> DB : 8. Lưu tài khoản mới vào bảng accounts_user
     activate DB
-    DB --> BE : 9. return lưu thành công
+    DB --> BE : 9. Trả về kết quả lưu thành công
     deactivate DB
-    BE --> UI : 10. return thông báo "Đăng ký thành công" & redirect
+    BE --> UI : 10. Trả về thông báo "Đăng ký thành công"
     deactivate BE
     activate UI
-    UI --> User : 11. chuyển hướng đến trang đăng nhập (/login/)
+    UI --> User : 11. Chuyển hướng sang trang đăng nhập (/accounts/login/)
     deactivate UI
-else đk kiểm tra: Email đã tồn tại HOẶC Mật khẩu không khớp
+else Điều kiện: Email đã tồn tại HOẶC Password không trùng khớp
     activate BE
-    BE --> UI : 10*. return thông báo lỗi ("Email đã tồn tại" / "Mật khẩu không khớp")
+    BE --> UI : 7*. Trả về thông báo lỗi cụ thể
     deactivate BE
     activate UI
-    UI --> User : 11*. hiển thị thông báo lỗi trên form đăng ký
+    UI --> User : 8*. Hiển thị lỗi trên form đăng ký để người dùng sửa lại
     deactivate UI
 end
 

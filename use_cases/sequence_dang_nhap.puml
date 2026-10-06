@@ -1,47 +1,46 @@
 @startuml
 skinparam sequenceMessageAlign center
-skinparam roundcorner 5
 skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam defaultFontSize 11
 
-actor "Khach_hang" as User
-participant "Path file code giao diện chức năng\ntemplates/accounts/login.html" as UI
-participant "Path file code be\naccounts/views.py" as BE
-database "tên csdl/tên bảng\ndb.sqlite3 / accounts_user" as DB
+actor "Khách hàng" as User
+participant "[Giao diện]\nD:/urban-threads/templates/accounts/login.html" as UI
+participant "[Xử lý nghiệp vụ]\nD:/urban-threads/accounts/views.py" as BE
+database "[Cơ sở dữ liệu]\nD:/urban-threads/db.sqlite3\n(Bảng: accounts_user)" as DB
 
-box "tên chức năng: Đăng nhập hệ thống" #LightYellow
+box "Tên chức năng: Đăng nhập hệ thống" #LightYellow
 end box
 
-User -> UI : 1. yêu cầu truy cập chức năng đăng nhập
+User -> UI : 1. Yêu cầu truy cập chức năng đăng nhập
 activate UI
-UI --> User : 2. hiển thị form đăng nhập (email, password)
+UI --> User : 2. Hiển thị form đăng nhập (Email, Password)
 deactivate UI
 
-User -> UI : 3. nhập thông tin đăng nhập (email, password)
+User -> UI : 3. Nhập thông tin đăng nhập (email, password)
 activate UI
-UI -> BE : 4. gửi dữ liệu đăng nhập (POST)
+UI -> BE : 4. Gửi dữ liệu đăng nhập (POST)
 activate BE
 
-BE -> DB : 5. truy vấn tìm User theo Email
+BE -> DB : 5. Truy vấn tìm kiếm tài khoản theo email
 activate DB
-DB --> BE : 6. return thông tin User & password_hash
+DB --> BE : 6. Trả về thông tin người dùng và mật khẩu băm
 deactivate DB
 
-alt đk kiểm tra: User tồn tại & Tài khoản active & Mật khẩu đúng
-    BE -> BE : 7. xác thực check_password() thành công
-    BE -> BE : 8. khởi tạo Session & lưu Session ID vào Cookie
-    BE --> UI : 9. return thông báo "Đăng nhập thành công" & redirect
+alt Điều kiện: Tài khoản tồn tại & Password chính xác & Đang hoạt động
+    BE -> BE : 7. Kiểm tra xác thực mật khẩu check_password() thành công
+    BE -> BE : 8. Khởi tạo phiên làm việc (Session) & cấp Cookie
+    BE --> UI : 9. Trả về thông báo "Đăng nhập thành công"
     deactivate BE
     activate UI
-    UI --> User : 10. chuyển hướng về Trang chủ (/) hoặc trang trước
+    UI --> User : 10. Chuyển hướng người dùng về trang chủ (/)
     deactivate UI
-else đk kiểm tra: Sai email HOẶC Sai mật khẩu HOẶC Bị khóa
+else Điều kiện: Sai email HOẶC sai password HOẶC tài khoản bị khóa
     activate BE
-    BE --> UI : 9*. return thông báo lỗi ("Tài khoản hoặc mật khẩu không chính xác")
+    BE --> UI : 7*. Trả về thông báo lỗi đăng nhập ("Email hoặc mật khẩu không đúng")
     deactivate BE
     activate UI
-    UI --> User : 10*. hiển thị thông báo lỗi trên form đăng nhập
+    UI --> User : 8*. Hiển thị thông báo lỗi trên form đăng nhập
     deactivate UI
 end
 
