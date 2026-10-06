@@ -6,19 +6,19 @@ skinparam defaultFontName Arial
 skinparam defaultFontSize 11
 
 actor "Khach_hang" as User
-participant "Path file code giao diện chức năng\ntemplates/accounts/register.html" as UI
-participant "Path file code be\naccounts/views.py" as BE
-database "tên csdl/tên bảng\ndb.sqlite3 / accounts_user" as DB
+participant "[Giao diện]\nD:/urban-threads/templates/accounts/register.html" as UI
+participant "[Xử lý nghiệp vụ]\nD:/urban-threads/accounts/views.py" as BE
+database "[Cơ sở dữ liệu]\nD:/urban-threads/db.sqlite3\n(Bảng: accounts_user)" as DB
 
 box "tên chức năng: Đăng ký tài khoản" #LightYellow
 end box
 
 User -> UI : 1. yêu cầu truy cập chức năng đăng ký
 activate UI
-UI --> User : 2. yêu cầu nhập thông tin form dk
+UI --> User : 2. yêu cầu nhập thông tin form đăng ký
 deactivate UI
 
-User -> UI : 3. nhập thông tin (email, password, confirm_pass, name)
+User -> UI : 3. nhập thông tin (email, password, nhập lại password, họ tên)
 activate UI
 UI -> BE : 4. gửi dữ liệu form đăng ký (POST)
 activate BE

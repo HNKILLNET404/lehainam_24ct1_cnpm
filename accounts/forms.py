@@ -37,15 +37,17 @@ class RegisterForm(UserCreationForm):
         })
     )
     password1 = forms.CharField(
+        label='Password',
         widget=forms.PasswordInput(attrs={
             'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black',
-            'placeholder': 'Mật khẩu'
+            'placeholder': 'Password'
         })
     )
     password2 = forms.CharField(
+        label='Nhập lại password',
         widget=forms.PasswordInput(attrs={
             'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black',
-            'placeholder': 'Xác nhận mật khẩu'
+            'placeholder': 'Nhập lại password'
         })
     )
 
