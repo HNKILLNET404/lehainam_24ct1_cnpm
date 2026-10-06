@@ -14,23 +14,18 @@ class RegisterForm(UserCreationForm):
             'placeholder': 'Email của bạn'
         })
     )
-    first_name = forms.CharField(
-        max_length=50,
+    full_name = forms.CharField(
+        max_length=100,
+        label='Họ và tên',
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black',
-            'placeholder': 'Họ'
-        })
-    )
-    last_name = forms.CharField(
-        max_length=50,
-        widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black',
-            'placeholder': 'Tên'
+            'placeholder': 'Họ và tên của bạn'
         })
     )
     phone = forms.CharField(
         max_length=15,
         required=False,
+        label='Số điện thoại',
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black',
             'placeholder': 'Số điện thoại (tùy chọn)'
@@ -53,7 +48,7 @@ class RegisterForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'last_name', 'phone', 'password1', 'password2')
+        fields = ('email', 'full_name', 'phone', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -63,8 +58,16 @@ class RegisterForm(UserCreationForm):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         user.username = self.cleaned_data['email']  # use email as username
-        user.first_name = self.cleaned_data['first_name']
-        user.last_name = self.cleaned_data['last_name']
+        
+        full_name = self.cleaned_data.get('full_name', '').strip()
+        parts = full_name.rsplit(' ', 1)
+        if len(parts) == 2:
+            user.first_name = parts[0]
+            user.last_name = parts[1]
+        else:
+            user.first_name = full_name
+            user.last_name = ''
+
         if self.cleaned_data.get('phone'):
             user.phone = self.cleaned_data['phone']
         if commit:
