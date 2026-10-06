@@ -1,5 +1,13 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
+"""
+URBAN THREADS — Website Bán Thời Trang Streetwear
+==================================================
+PHIA SAU  (Backend)  : Django 5.1.1 | Python 3.10+ | Kiến trúc MVT
+PHIA TRUOC (Frontend): Tailwind CSS v3 (CDN) + Alpine.js v3 (CDN) + HTML5
+CO SO DU LIEU (DB)   : SQLite | File: db.sqlite3
+CONG THANH TOAN      : VietQR API (Napas247) — đa ngân hàng Việt Nam
+ENTRY POINT          : python manage.py runserver
+"""
 import os
 import sys
 

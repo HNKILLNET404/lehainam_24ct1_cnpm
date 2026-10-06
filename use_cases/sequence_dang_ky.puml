@@ -1,0 +1,51 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam roundcorner 5
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+
+actor "Khach_hang" as User
+participant "Path file code giao diện chức năng\ntemplates/accounts/register.html" as UI
+participant "Path file code be\naccounts/views.py" as BE
+database "tên csdl/tên bảng\ndb.sqlite3 / accounts_user" as DB
+
+box "tên chức năng: Đăng ký tài khoản" #LightYellow
+end box
+
+User -> UI : 1. yêu cầu truy cập chức năng đăng ký
+activate UI
+UI --> User : 2. yêu cầu nhập thông tin form dk
+deactivate UI
+
+User -> UI : 3. nhập thông tin (email, password, confirm_pass, name)
+activate UI
+UI -> BE : 4. gửi dữ liệu form đăng ký (POST)
+activate BE
+
+BE -> DB : 5. truy vấn kiểm tra email đã tồn tại?
+activate DB
+DB --> BE : 6. return kết quả kiểm tra
+deactivate DB
+
+alt đk kiểm tra: Email chưa tồn tại & Mật khẩu khớp
+    BE -> BE : 7. băm mật khẩu: PBKDF2_SHA256(password)
+    BE -> DB : 8. lưu thông tin User mới (INSERT INTO accounts_user)
+    activate DB
+    DB --> BE : 9. return lưu thành công
+    deactivate DB
+    BE --> UI : 10. return thông báo "Đăng ký thành công" & redirect
+    deactivate BE
+    activate UI
+    UI --> User : 11. chuyển hướng đến trang đăng nhập (/login/)
+    deactivate UI
+else đk kiểm tra: Email đã tồn tại HOẶC Mật khẩu không khớp
+    activate BE
+    BE --> UI : 10*. return thông báo lỗi ("Email đã tồn tại" / "Mật khẩu không khớp")
+    deactivate BE
+    activate UI
+    UI --> User : 11*. hiển thị thông báo lỗi trên form đăng ký
+    deactivate UI
+end
+
+@enduml

@@ -1,0 +1,48 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam roundcorner 5
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+
+actor "Khach_hang" as User
+participant "Path file code giao diện chức năng\ntemplates/accounts/login.html" as UI
+participant "Path file code be\naccounts/views.py" as BE
+database "tên csdl/tên bảng\ndb.sqlite3 / accounts_user" as DB
+
+box "tên chức năng: Đăng nhập hệ thống" #LightYellow
+end box
+
+User -> UI : 1. yêu cầu truy cập chức năng đăng nhập
+activate UI
+UI --> User : 2. hiển thị form đăng nhập (email, password)
+deactivate UI
+
+User -> UI : 3. nhập thông tin đăng nhập (email, password)
+activate UI
+UI -> BE : 4. gửi dữ liệu đăng nhập (POST)
+activate BE
+
+BE -> DB : 5. truy vấn tìm User theo Email
+activate DB
+DB --> BE : 6. return thông tin User & password_hash
+deactivate DB
+
+alt đk kiểm tra: User tồn tại & Tài khoản active & Mật khẩu đúng
+    BE -> BE : 7. xác thực check_password() thành công
+    BE -> BE : 8. khởi tạo Session & lưu Session ID vào Cookie
+    BE --> UI : 9. return thông báo "Đăng nhập thành công" & redirect
+    deactivate BE
+    activate UI
+    UI --> User : 10. chuyển hướng về Trang chủ (/) hoặc trang trước
+    deactivate UI
+else đk kiểm tra: Sai email HOẶC Sai mật khẩu HOẶC Bị khóa
+    activate BE
+    BE --> UI : 9*. return thông báo lỗi ("Tài khoản hoặc mật khẩu không chính xác")
+    deactivate BE
+    activate UI
+    UI --> User : 10*. hiển thị thông báo lỗi trên form đăng nhập
+    deactivate UI
+end
+
+@enduml

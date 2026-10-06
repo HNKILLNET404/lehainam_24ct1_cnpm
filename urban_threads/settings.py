@@ -1,3 +1,13 @@
+# =============================================================================
+# URBAN THREADS — Website Bán Thời Trang Streetwear
+# =============================================================================
+# PHIA SAU (Backend Framework): Django 5.1.1 | Python 3.10+
+# PHIA TRUOC (Frontend Framework): Tailwind CSS v3 (CDN) + Alpine.js v3 (CDN)
+# CO SO DU LIEU (Database): SQLite — file: db.sqlite3
+# CONG THANH TOAN (Payment): VietQR API (Napas247)
+# KIEN TRUC (Architecture): MVT — Model / View / Template
+# =============================================================================
+
 from pathlib import Path
 from decouple import config
 import os
