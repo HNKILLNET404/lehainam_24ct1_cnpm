@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Về chúng tôi — Urban Threads{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="bg-black text-white py-24 px-4 text-center">
+    <div class="max-w-3xl mx-auto">
+        <p class="text-accent text-sm uppercase tracking-[0.3em] mb-4">Thương hiệu Việt Nam</p>
+        <h1 class="text-5xl md:text-6xl font-black uppercase tracking-tight mb-6">Urban Threads</h1>
+        <p class="text-gray-400 text-lg leading-relaxed">
+            Được thành lập từ đam mê với văn hóa đường phố, Urban Threads mang đến những bộ trang phục
+            streetwear chất lượng cao, thiết kế độc đáo cho thế hệ trẻ Việt Nam.
+        </p>
+    </div>
+</section>
+
+<!-- Story -->
+<section class="py-20 px-4">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div>
+            <p class="text-accent text-sm uppercase tracking-widest mb-3">Câu chuyện của chúng tôi</p>
+            <h2 class="text-4xl font-bold mb-6">Born on the Streets,<br>Made for Everyone</h2>
+            <div class="space-y-4 text-gray-600 leading-relaxed">
+                <p>Urban Threads ra đời năm 2022 tại TP.HCM từ một nhóm bạn trẻ yêu thời trang và văn hóa hip-hop. Chúng tôi tin rằng streetwear không chỉ là quần áo — đó là ngôn ngữ, là bản sắc, là cách bạn thể hiện chính mình.</p>
+                <p>Mỗi sản phẩm của Urban Threads đều được thiết kế cẩn thận, chú trọng chất liệu cao cấp và độ bền, đảm bảo bạn không chỉ trông tốt mà còn cảm thấy thoải mái suốt ngày dài.</p>
+                <p>Với hơn 50,000 khách hàng tin tưởng, chúng tôi tự hào là một trong những thương hiệu streetwear được yêu thích nhất Việt Nam.</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <img src="https://images.unsplash.com/photo-1523398002811-999ca8dec234?w=400&q=80" 
+                 alt="Urban style" class="w-full h-64 object-cover rounded-lg">
+            <img src="https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80" 
+                 alt="Urban fashion" class="w-full h-64 object-cover rounded-lg mt-8">
+        </div>
+    </div>
+</section>
+
+<!-- Values -->
+<section class="py-20 bg-gray-50 px-4">
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-14">
+            <p class="text-accent text-sm uppercase tracking-widest mb-2">Giá trị cốt lõi</p>
+            <h2 class="text-3xl font-bold uppercase">Chúng tôi đại diện cho điều gì</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white p-8 rounded-2xl text-center shadow-sm">
+                <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-5">
+                    <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                    </svg>
+                </div>
+                <h3 class="font-bold text-xl mb-3">Chất lượng</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">Chúng tôi chỉ sử dụng vải cao cấp, may chắc chắn, bền màu qua nhiều lần giặt.</p>
+            </div>
+            <div class="bg-white p-8 rounded-2xl text-center shadow-sm">
+                <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-5">
+                    <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <h3 class="font-bold text-xl mb-3">Phong cách</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">Thiết kế terinspirasi từ văn hóa đường phố toàn cầu, được Việt hóa phù hợp với người trẻ Việt.</p>
+            </div>
+            <div class="bg-white p-8 rounded-2xl text-center shadow-sm">
+                <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-5">
+                    <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                </div>
+                <h3 class="font-bold text-xl mb-3">Cộng đồng</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">Chúng tôi xây dựng cộng đồng người yêu streetwear, nơi mỗi người đều có thể là chính mình.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats -->
+<section class="py-20 bg-black text-white px-4">
+    <div class="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div>
+            <div class="text-5xl font-black text-accent mb-2">50K+</div>
+            <p class="text-gray-400 text-sm uppercase tracking-wide">Khách hàng</p>
+        </div>
+        <div>
+            <div class="text-5xl font-black text-accent mb-2">200+</div>
+            <p class="text-gray-400 text-sm uppercase tracking-wide">Sản phẩm</p>
+        </div>
+        <div>
+            <div class="text-5xl font-black text-accent mb-2">3+</div>
+            <p class="text-gray-400 text-sm uppercase tracking-wide">Năm kinh nghiệm</p>
+        </div>
+        <div>
+            <div class="text-5xl font-black text-accent mb-2">4.9★</div>
+            <p class="text-gray-400 text-sm uppercase tracking-wide">Đánh giá TB</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="py-20 px-4 text-center">
+    <div class="max-w-2xl mx-auto">
+        <h2 class="text-4xl font-bold uppercase mb-4">Sẵn sàng thể hiện phong cách?</h2>
+        <p class="text-gray-500 mb-8">Khám phá bộ sưu tập mới nhất của chúng tôi và tìm chiếc áo hoàn hảo của bạn.</p>
+        <a href="{% url 'product_list' %}" class="inline-block px-10 py-4 bg-black text-white font-bold uppercase tracking-widest text-sm hover:bg-gray-800 transition rounded">
+            Shop ngay →
+        </a>
+    </div>
+</section>
+
+{% endblock %}

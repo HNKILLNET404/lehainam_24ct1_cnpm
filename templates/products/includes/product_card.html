@@ -1,0 +1,59 @@
+<div class="product-card group" data-gendered-product="{% if product.gender == 'female' %}true{% else %}false{% endif %}">
+    <div class="relative overflow-hidden mb-4 bg-gray-100 aspect-[3/4]">
+        <!-- Badges -->
+        <div class="absolute top-2 left-2 z-10 flex flex-col gap-1">
+            {% if product.is_new_arrival %}
+            <span class="bg-black text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider">Mới</span>
+            {% endif %}
+            {% if product.is_best_seller %}
+            <span class="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider">Bán chạy</span>
+            {% endif %}
+            {% if product.discount_percent > 0 %}
+            <span class="bg-red-600 text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider">-{{ product.discount_percent }}%</span>
+            {% endif %}
+        </div>
+
+        <!-- Wishlist btn -->
+        {% if user.is_authenticated %}
+        <button onclick="toggleWishlist('{{ product.id }}')" class="absolute top-2 right-2 z-10 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:text-accent transition">
+            <i class="far fa-heart"></i>
+        </button>
+        {% endif %}
+
+        <!-- Images -->
+        <a href="{{ product.get_absolute_url }}" class="block w-full h-full">
+            {% with main_img=product.main_image %}
+                {% if main_img %}
+                    <img src="{{ main_img.image.url }}" alt="{{ product.name }}" class="product-image w-full h-full object-cover">
+                {% else %}
+                    <div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">No Image</div>
+                {% endif %}
+            {% endwith %}
+        </a>
+
+        <!-- Quick Add Overlay (Desktop) -->
+        <div class="absolute bottom-0 left-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/80 to-transparent hidden lg:block">
+            <a href="{{ product.get_absolute_url }}" class="w-full block text-center py-2 bg-white text-black text-sm font-semibold uppercase hover:bg-gray-100 transition">
+                Xem chi tiết
+            </a>
+        </div>
+    </div>
+
+    <!-- Info -->
+    <div>
+        <div class="text-xs text-gray-500 mb-1 uppercase tracking-wider">{{ product.category.name }}</div>
+        <h3 class="text-sm font-medium leading-tight mb-2">
+            <a href="{{ product.get_absolute_url }}" class="hover:text-accent transition line-clamp-2">
+                {{ product.name }}
+            </a>
+        </h3>
+        <div class="flex items-center gap-2">
+            {% if product.is_on_sale %}
+                <span class="text-red-600 font-semibold">{{ product.sale_price|currency }}</span>
+                <span class="text-gray-400 text-sm line-through">{{ product.base_price|currency }}</span>
+            {% else %}
+                <span class="font-semibold">{{ product.base_price|currency }}</span>
+            {% endif %}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20 text-center">
+    
+    <div class="mb-8">
+        <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-check text-4xl"></i>
+        </div>
+        <h1 class="text-3xl font-bold uppercase tracking-tight mb-4">Đặt hàng thành công!</h1>
+        <p class="text-gray-600 text-lg">Cảm ơn bạn đã mua sắm tại Urban Threads. Mã đơn hàng của bạn là <strong class="text-black">{{ order.order_number }}</strong>.</p>
+    </div>
+
+    <div class="bg-gray-50 border border-gray-200 p-8 rounded-lg mb-10 max-w-2xl mx-auto text-left">
+        <h3 class="font-bold text-lg mb-4 border-b pb-2">Thông tin đơn hàng</h3>
+        
+        <div class="grid grid-cols-2 gap-4 text-sm mb-6">
+            <div>
+                <p class="text-gray-500 mb-1">Người nhận:</p>
+                <p class="font-medium">{{ order.full_name }}</p>
+                <p class="font-medium">{{ order.phone }}</p>
+            </div>
+            <div>
+                <p class="text-gray-500 mb-1">Địa chỉ giao hàng:</p>
+                <p class="font-medium leading-tight">{{ order.shipping_address }}</p>
+            </div>
+        </div>
+        
+        <div class="border-t pt-4">
+            <div class="flex justify-between items-center mb-2 text-sm">
+                <span class="text-gray-600">Trạng thái thanh toán:</span>
+                {% if order.payment and order.payment.status == 'confirmed' %}
+                    <span class="text-green-600 font-bold"><i class="fas fa-check-circle"></i> Đã thanh toán</span>
+                {% elif order.payment and order.payment.status == 'uploaded' %}
+                    <span class="text-blue-600 font-bold"><i class="fas fa-clock"></i> Đang chờ xác nhận</span>
+                {% else %}
+                    <span class="text-yellow-600 font-bold"><i class="fas fa-exclamation-circle"></i> Chưa thanh toán</span>
+                {% endif %}
+            </div>
+            <div class="flex justify-between items-center text-lg font-bold">
+                <span>Tổng cộng:</span>
+                <span>{{ order.total|currency }}</span>
+            </div>
+        </div>
+    </div>
+    
+    {% if not order.payment or order.payment.status == 'pending' %}
+    <div class="mb-10 p-4 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg inline-block max-w-2xl mx-auto text-sm text-left">
+        <p><strong>Lưu ý:</strong> Đơn hàng của bạn chưa được thanh toán. Vui lòng thanh toán để chúng tôi có thể xử lý đơn hàng.</p>
+        <div class="mt-4 text-center">
+            <a href="{% url 'payment_qr' order.id %}" class="inline-block px-6 py-2 bg-yellow-500 text-white font-bold rounded uppercase text-sm hover:bg-yellow-600">Thanh toán ngay</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <a href="{% url 'order_detail' order.id %}" class="px-8 py-3 border border-black text-black font-semibold uppercase tracking-wide hover:bg-gray-100 transition rounded-sm">
+            Xem chi tiết đơn
+        </a>
+        <a href="{% url 'home' %}" class="px-8 py-3 bg-black text-white font-semibold uppercase tracking-wide hover:bg-gray-800 transition rounded-sm">
+            Tiếp tục mua sắm
+        </a>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+@startuml
+title PHÂN HỆ KHÁCH HÀNG (CUSTOMER) — USE CASE CHI TIẾT
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+
+skinparam actor {
+    BackgroundColor #FEF9E7
+    BorderColor #D9531E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A5276
+}
+
+actor "Khách vãng lai" as Guest
+actor "Khách hàng (Đã đăng nhập)" as Customer
+actor "Cổng VietQR" as VietQR <<Service>>
+
+Customer -up-|> Guest
+
+rectangle "Phân Hệ Khách Hàng (Urban Threads)" {
+    
+    usecase "Đăng ký tài khoản" as UC_Register
+    usecase "Đăng nhập" as UC_Login
+    usecase "Xem thông tin cá nhân" as UC_Profile
+    usecase "Quản lý sổ địa chỉ" as UC_Address
+    usecase "Xem lịch sử & trạng thái đơn" as UC_History
+
+    usecase "Xem & Lọc sản phẩm" as UC_Filter
+    usecase "Tìm kiếm có dấu / không dấu" as UC_Search
+    usecase "Xem chi tiết & Chọn size/màu" as UC_Detail
+    usecase "Thêm vào danh sách yêu thích" as UC_Wishlist
+    usecase "Gửi đánh giá (1-5 sao)" as UC_Review
+
+    usecase "Quản lý giỏ hàng & Mini Cart" as UC_Cart
+    usecase "Nhập mã giảm giá (Coupon)" as UC_Coupon
+    usecase "Kiểm tra tiến trình Freeship" as UC_Freeship
+
+    usecase "Đặt hàng (Checkout)" as UC_Checkout
+    usecase "Chọn địa chỉ giao hàng" as UC_SelectAddr
+    usecase "Quét mã VietQR thanh toán" as UC_ScanQR
+    usecase "Tải ảnh biên lai giao dịch" as UC_UploadBill
+}
+
+' Guest actions
+Guest --> UC_Register
+Guest --> UC_Login
+Guest --> UC_Filter
+Guest --> UC_Search
+Guest --> UC_Detail
+Guest --> UC_Cart
+
+' Customer actions
+Customer --> UC_Profile
+Customer --> UC_Address
+Customer --> UC_History
+Customer --> UC_Wishlist
+Customer --> UC_Review
+Customer --> UC_Checkout
+
+' Includes & Extends
+UC_Cart <.. UC_Coupon : <<extend>>
+UC_Cart ..> UC_Freeship : <<include>>
+
+UC_Checkout ..> UC_SelectAddr : <<include>>
+UC_Checkout ..> UC_ScanQR : <<include>>
+UC_Checkout ..> UC_UploadBill : <<include>>
+
+UC_ScanQR --> VietQR
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+left to right direction
+
+:khach_hang: as User
+:quan_tri_vien: as Admin
+:he_thong_vietqr: as VietQR
+
+package "he_thong_urban_threads" {
+    (dang_ky_tai_khoan) as UC1
+    (dang_nhap_he_thong) as UC2
+    (tim_kiem_va_loc_san_pham) as UC3
+    (xem_chi_tiet_san_pham) as UC4
+    (quan_ly_gio_hang) as UC5
+    (ap_dung_ma_giam_gia) as UC6
+    (dat_hang_checkout) as UC7
+    (quet_ma_vietqr) as UC8
+    (upload_bien_lai) as UC9
+    (xem_lich_su_don_hang) as UC10
+
+    (quan_ly_san_pham_va_kho) as UC11
+    (quan_ly_don_hang) as UC12
+    (duyet_thanh_toan_vietqr) as UC13
+    (quan_ly_khuyen_mai) as UC14
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+User --> UC8
+User --> UC9
+User --> UC10
+
+UC8 --> VietQR
+
+Admin --> UC11
+Admin --> UC12
+Admin --> UC13
+Admin --> UC14
+
+@enduml

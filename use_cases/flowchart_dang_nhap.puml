@@ -1,0 +1,68 @@
+@startuml
+title MÔ HÌNH GIẢI THUẬT (FLOWCHART) — CHỨC NĂNG ĐĂNG NHẬP
+
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+skinparam activity {
+    BackgroundColor #FFFFFF
+    BorderColor #1A5276
+    ArrowColor #2C3E50
+}
+
+skinparam condition {
+    BackgroundColor #FEF9E7
+    BorderColor #D9531E
+}
+
+start
+:Bắt đầu;
+
+:Nhập: email, password/
+note right: Nhập từ form đăng nhập
+
+if (Email và Password để trống?) then (Có trống)
+    :Xuất: Lỗi "Vui lòng nhập đầy đủ thông tin">
+    stop
+else (Đầy đủ)
+endif
+
+:Truy vấn Database: Tìm User theo Email;
+
+if (Tìm thấy User trong CSDL?) then (Không tìm thấy)
+    :Xuất: Lỗi "Email hoặc mật khẩu không chính xác">
+    stop
+else (Tìm thấy)
+endif
+
+if (Tài khoản đang kích hoạt (is_active == True)?) then (Bị khóa)
+    :Xuất: Lỗi "Tài khoản của bạn đã bị vô hiệu hóa">
+    stop
+else (Hoạt động)
+endif
+
+:Xác thực mật khẩu: check_password(password, user.password_hash);
+
+if (Mật khẩu trùng khớp?) then (Sai mật khẩu)
+    :Xuất: Lỗi "Email hoặc mật khẩu không chính xác">
+    stop
+else (Đúng mật khẩu)
+endif
+
+:Khởi tạo Session: login(request, user);
+:Tạo và lưu Session ID vào Cookie trình duyệt;
+
+if (User có quyền Admin (is_staff == True)?) then (Là Admin)
+    :Xuất: Thông báo "Đăng nhập quyền Admin thành công">
+    :Chuyển hướng đến trang Admin Dashboard (/admin/)>
+else (Là Khách hàng)
+    :Xuất: Thông báo "Đăng nhập thành công">
+    :Chuyển hướng đến Trang chủ (/) hoặc giỏ hàng>
+endif
+
+:Kết thúc;
+stop
+
+@enduml

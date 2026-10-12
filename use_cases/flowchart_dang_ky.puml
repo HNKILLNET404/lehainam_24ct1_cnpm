@@ -1,0 +1,57 @@
+@startuml
+title MÔ HÌNH GIẢI THUẬT (FLOWCHART) — CHỨC NĂNG ĐĂNG KÝ TÀI KHOẢN
+
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+skinparam activity {
+    BackgroundColor #FFFFFF
+    BorderColor #1A5276
+    ArrowColor #2C3E50
+}
+
+skinparam condition {
+    BackgroundColor #FEF9E7
+    BorderColor #D9531E
+}
+
+start
+:Bắt đầu;
+
+:Nhập: email, password, confirm_password, full_name/
+note right: Nhập liệu từ form đăng ký
+
+if (Dữ liệu nhập hợp lệ\n(Email đúng định dạng, pass >= 8 ký tự)?) then (Không)
+    :Xuất: Lỗi "Thông tin nhập không hợp lệ">
+    stop
+else (Có)
+endif
+
+if (password == confirm_password?) then (Không khớp)
+    :Xuất: Lỗi "Mật khẩu xác nhận không khớp">
+    stop
+else (Khớp)
+endif
+
+:Truy vấn Database: kiểm tra email đã tồn tại;
+
+if (Email đã tồn tại trong CSDL?) then (Đã tồn tại)
+    :Xuất: Lỗi "Email này đã được đăng ký">
+    stop
+else (Chưa tồn tại)
+endif
+
+:Mã hóa mật khẩu: password_hash = PBKDF2_SHA256(password);
+:Tạo bản ghi User mới: User.objects.create(...);
+:Gán quyền mặc định: is_active = True, is_staff = False;
+:Lưu người dùng vào CSDL Database;
+
+:Xuất: Thông báo "Đăng ký thành công!">
+:Chuyển hướng đến trang Đăng nhập /login/>
+
+:Kết thúc;
+stop
+
+@enduml

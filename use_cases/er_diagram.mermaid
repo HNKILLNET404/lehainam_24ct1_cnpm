@@ -1,0 +1,61 @@
+erDiagram
+    USER ||--o{ ORDER : dat_hang
+    ORDER ||--|{ ORDER_ITEM : chi_tiet
+    PRODUCT ||--o{ ORDER_ITEM : gom
+    CATEGORY ||--o{ PRODUCT : phan_loai
+    ORDER ||--|| PAYMENT : thanh_toan
+    USER ||--o{ REVIEW : danh_gia
+    PRODUCT ||--o{ REVIEW : nhan
+
+    USER {
+        string id PK
+        string email
+        string full_name
+        string phone
+        string address
+    }
+
+    CATEGORY {
+        string id PK
+        string name
+        string slug
+    }
+
+    PRODUCT {
+        string id PK
+        string name
+        float price
+        string material
+        string gender
+    }
+
+    ORDER {
+        string id PK
+        string order_number
+        date order_date
+        float total_amount
+        string status
+    }
+
+    ORDER_ITEM {
+        string id PK
+        int quantity
+        float unit_price
+        string color
+        string size
+    }
+
+    PAYMENT {
+        string id PK
+        float amount
+        string bank_id
+        string status
+        string receipt_image
+    }
+
+    REVIEW {
+        string id PK
+        int rating
+        string comment
+        date created_at
+    }

@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12" x-data="productDetail()">
+    
+    <!-- Breadcrumbs -->
+    <nav class="text-xs text-gray-500 uppercase tracking-wider mb-8">
+        <ol class="list-none p-0 inline-flex gap-2">
+            <li class="flex items-center">
+                <a href="{% url 'home' %}" class="hover:text-black">Trang chủ</a>
+                <i class="fas fa-chevron-right text-[10px] mx-2"></i>
+            </li>
+            <li class="flex items-center">
+                <a href="{% url 'product_list' %}" class="hover:text-black">Sản phẩm</a>
+                <i class="fas fa-chevron-right text-[10px] mx-2"></i>
+            </li>
+            {% if product.category %}
+            <li class="flex items-center">
+                <a href="{{ product.category.get_absolute_url }}" class="hover:text-black">{{ product.category.name }}</a>
+                <i class="fas fa-chevron-right text-[10px] mx-2"></i>
+            </li>
+            {% endif %}
+            <li class="text-black font-semibold">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="flex flex-col lg:flex-row gap-12">
+        <!-- Gallery -->
+        <div class="w-full lg:w-7/12 flex gap-4">
+            <!-- Thumbnails (Desktop) -->
+            <div class="hidden md:flex flex-col gap-4 w-20 flex-shrink-0">
+                {% for img in images %}
+                <button @click="activeImage = '{{ img.image.url }}'" class="w-full aspect-[3/4] border-2 transition" :class="activeImage === '{{ img.image.url }}' ? 'border-black' : 'border-transparent hover:border-gray-300'">
+                    <img src="{{ img.image.url }}" class="w-full h-full object-cover">
+                </button>
+                {% endfor %}
+            </div>
+            
+            <!-- Main Image -->
+            <div class="flex-1 relative aspect-[3/4] bg-gray-100 group">
+                <img :src="activeImage" alt="{{ product.name }}" class="w-full h-full object-cover">
+                
+                <!-- Badges -->
+                <div class="absolute top-4 left-4 flex flex-col gap-2">
+                    {% if product.is_new_arrival %}
+                    <span class="bg-black text-white text-xs font-bold px-3 py-1 uppercase tracking-wider">Mới</span>
+                    {% endif %}
+                    {% if product.discount_percent > 0 %}
+                    <span class="bg-red-600 text-white text-xs font-bold px-3 py-1 uppercase tracking-wider">-{{ product.discount_percent }}%</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="w-full lg:w-5/12 flex flex-col">
+            <h1 class="text-3xl font-bold uppercase tracking-tight mb-2">{{ product.name }}</h1>
+            
+            <div class="flex items-center gap-4 mb-6">
+                <!-- Price -->
+                <div class="text-2xl font-bold text-black" x-text="formatPrice(currentPrice)">{{ product.current_price|currency }}</div>
+                {% if product.is_on_sale %}
+                <span class="text-gray-400 line-through text-lg">{{ product.base_price|currency }}</span>
+                {% endif %}
+                
+                <!-- Rating -->
+                <div class="flex items-center gap-1 ml-auto text-sm">
+                    <span class="text-yellow-400">
+                        <i class="fas fa-star"></i>
+                    </span>
+                    <span class="font-medium">{{ product.average_rating }}</span>
+                    <a href="#reviews" class="text-gray-500 hover:text-black underline">({{ product.review_count }} đánh giá)</a>
+                </div>
+            </div>
+
+            <form action="{% url 'cart_add' %}" method="POST" onsubmit="return addToCart(this)" class="mb-10 border-t border-b border-gray-100 py-8">
+                {% csrf_token %}
+                <input type="hidden" name="variant_id" :value="selectedVariantId">
+                
+                <!-- Colors -->
+                {% if colors %}
+                <div class="mb-6">
+                    <div class="flex justify-between items-end mb-3">
+                        <h3 class="text-sm font-semibold uppercase tracking-wider">Màu sắc: <span x-text="selectedColorName" class="font-normal text-gray-500"></span></h3>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        {% for color in colors %}
+                        <label class="cursor-pointer">
+                            <input type="radio" name="color" value="{{ color.id }}" @change="selectColor('{{ color.id }}', '{{ color.name }}')" class="hidden">
+                            <div class="w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center p-0.5"
+                                 :class="selectedColor == '{{ color.id }}' ? 'border-black' : 'border-transparent hover:border-gray-300'">
+                                <div class="w-full h-full rounded-full border border-gray-200" style="background-color: {{ color.hex_code|default:'#ccc' }};"></div>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Sizes -->
+                {% if sizes %}
+                <div class="mb-8">
+                    <div class="flex justify-between items-end mb-3">
+                        <h3 class="text-sm font-semibold uppercase tracking-wider">Kích cỡ</h3>
+                        <button type="button" class="text-xs text-gray-500 hover:text-black underline">Hướng dẫn chọn size</button>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        {% for size in sizes %}
+                        <label class="cursor-pointer">
+                            <input type="radio" name="size" value="{{ size.id }}" @change="selectSize('{{ size.id }}')" class="hidden">
+                            <div class="w-14 h-12 border flex items-center justify-center text-sm transition"
+                                 :class="selectedSize == '{{ size.id }}' ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-800 hover:border-black'">
+                                {{ size.name }}
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Stock Status -->
+                <div class="mb-6 text-sm">
+                    <template x-if="selectedVariantId && currentStock > 0">
+                        <p class="text-green-600"><i class="fas fa-check-circle mr-1"></i> Còn <span x-text="currentStock"></span> sản phẩm</p>
+                    </template>
+                    <template x-if="selectedVariantId && currentStock <= 0">
+                        <p class="text-red-600"><i class="fas fa-times-circle mr-1"></i> Hết hàng</p>
+                    </template>
+                    <template x-if="!selectedVariantId">
+                        <p class="text-gray-500">Vui lòng chọn Màu sắc và Kích cỡ</p>
+                    </template>
+                </div>
+
+                <!-- Add to cart -->
+                <div class="flex gap-4">
+                    <div class="w-24 h-14 border border-gray-300 flex items-center justify-between px-3">
+                        <button type="button" @click="if(quantity > 1) quantity--" class="text-gray-500 hover:text-black w-6 h-full"><i class="fas fa-minus text-xs"></i></button>
+                        <input type="number" name="quantity" x-model="quantity" min="1" :max="currentStock || 1" class="w-8 text-center text-sm font-medium border-none focus:ring-0 p-0" readonly>
+                        <button type="button" @click="if(quantity < currentStock) quantity++" class="text-gray-500 hover:text-black w-6 h-full"><i class="fas fa-plus text-xs"></i></button>
+                    </div>
+                    
+                    <button type="submit" 
+                            class="flex-1 bg-black text-white text-sm font-semibold uppercase tracking-wider transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                            :disabled="!selectedVariantId || currentStock <= 0">
+                        <span x-show="currentStock > 0">Thêm vào giỏ hàng</span>
+                        <span x-show="currentStock <= 0">Hết hàng</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Description & details (Accordion) -->
+            <div class="space-y-4 text-sm" x-data="{ activeTab: 1 }">
+                <!-- Desc -->
+                <div class="border-b border-gray-200">
+                    <button @click="activeTab = activeTab === 1 ? null : 1" class="w-full py-4 flex justify-between items-center text-left font-semibold uppercase tracking-wide">
+                        Mô tả sản phẩm
+                        <i class="fas fa-chevron-down transition-transform" :class="activeTab === 1 ? 'rotate-180' : ''"></i>
+                    </button>
+                    <div x-show="activeTab === 1" x-collapse class="pb-6 text-gray-600 leading-relaxed prose prose-sm max-w-none">
+                        {{ product.description|linebreaks }}
+                    </div>
+                </div>
+                
+                <!-- Material -->
+                {% if product.material %}
+                <div class="border-b border-gray-200">
+                    <button @click="activeTab = activeTab === 2 ? null : 2" class="w-full py-4 flex justify-between items-center text-left font-semibold uppercase tracking-wide">
+                        Chất liệu & Bảo quản
+                        <i class="fas fa-chevron-down transition-transform" :class="activeTab === 2 ? 'rotate-180' : ''"></i>
+                    </button>
+                    <div x-show="activeTab === 2" x-collapse class="pb-6 text-gray-600 leading-relaxed">
+                        <p class="mb-2"><strong>Chất liệu:</strong> {{ product.material }}</p>
+                        <p><strong>Bảo quản:</strong> {{ product.care_instructions }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <section class="mt-24">
+        <h2 class="text-2xl font-bold uppercase tracking-wide mb-8 text-center">Gợi ý cho bạn</h2>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for p in related_products %}
+                {% include 'products/includes/product_card.html' with product=p %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('productDetail', () => ({
+            activeImage: '{{ images.0.image.url }}',
+            variants: {{ variant_map|safe }},
+            selectedColor: '',
+            selectedColorName: '',
+            selectedSize: '',
+            selectedVariantId: null,
+            currentStock: 0,
+            currentPrice: {{ product.current_price|stringformat:"f" }},
+            quantity: 1,
+            
+            selectColor(id, name) {
+                this.selectedColor = id;
+                this.selectedColorName = name;
+                this.updateVariant();
+            },
+            
+            selectSize(id) {
+                this.selectedSize = id;
+                this.updateVariant();
+            },
+            
+            updateVariant() {
+                // Determine key format based on what is selected
+                let colorKey = this.selectedColor || 'none';
+                let sizeKey = this.selectedSize || 'none';
+                let key = `${colorKey}-${sizeKey}`;
+                
+                if (this.variants[key]) {
+                    this.selectedVariantId = this.variants[key].id;
+                    this.currentStock = this.variants[key].stock;
+                    this.currentPrice = parseFloat(this.variants[key].price);
+                    if (this.quantity > this.currentStock) {
+                        this.quantity = this.currentStock || 1;
+                    }
+                } else {
+                    this.selectedVariantId = null;
+                    this.currentStock = 0;
+                }
+            },
+            
+            formatPrice(val) {
+                return Number(val).toLocaleString('en-US') + 'đ';
+            },
+            
+            init() {
+                // If only 1 color or size, auto select
+                {% if colors|length == 1 %}
+                    this.selectColor('{{ colors.0.id }}', '{{ colors.0.name }}');
+                {% endif %}
+                {% if sizes|length == 1 %}
+                    this.selectSize('{{ sizes.0.id }}');
+                {% endif %}
+            }
+        }))
+    })
+</script>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Chi tiết đơn hàng {{ order.order_number }} - Urban Threads{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="flex items-center gap-4 mb-8">
+        <a href="{% url 'order_history' %}" class="text-gray-500 hover:text-black"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-2xl font-bold uppercase tracking-tight">Đơn hàng {{ order.order_number }}</h1>
+        <span class="text-sm px-3 py-1 rounded-full font-semibold uppercase
+            {% if order.status == 'delivered' %}bg-green-100 text-green-700
+            {% elif order.status == 'cancelled' %}bg-red-100 text-red-700
+            {% elif order.status == 'shipping' %}bg-indigo-100 text-indigo-700
+            {% elif order.status == 'processing' %}bg-purple-100 text-purple-700
+            {% elif order.status == 'confirmed' %}bg-blue-100 text-blue-700
+            {% else %}bg-yellow-100 text-yellow-700{% endif %}">
+            {{ order.get_status_display }}
+        </span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left: Items + Timeline -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Items -->
+            <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                <h3 class="font-bold uppercase text-sm tracking-wide p-5 border-b border-gray-100 bg-gray-50">Sản phẩm đặt mua</h3>
+                <div class="divide-y divide-gray-100">
+                    {% for item in order.items.all %}
+                    <div class="flex gap-4 p-5">
+                        <div class="w-20 h-24 bg-gray-100 flex-shrink-0 rounded overflow-hidden">
+                            {% if item.product_image %}
+                            <img src="{{ item.product_image }}" alt="{{ item.product_name }}" class="w-full h-full object-cover">
+                            {% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-sm leading-tight mb-1">{{ item.product_name }}</h4>
+                            <div class="text-xs text-gray-500 space-y-1">
+                                {% if item.color_name %}<p>Màu: {{ item.color_name }}</p>{% endif %}
+                                {% if item.size_name %}<p>Size: {{ item.size_name }}</p>{% endif %}
+                                <p>Số lượng: {{ item.quantity }}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold">{{ item.unit_price|currency }}</p>
+                            <p class="text-sm text-gray-500 mt-1">Tổng: {{ item.total_price|currency }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Order Status Timeline -->
+            <div class="bg-white border border-gray-200 rounded-xl p-6">
+                <h3 class="font-bold uppercase text-sm tracking-wide mb-5">Trạng thái đơn hàng</h3>
+                <div class="flex items-center">
+                    {% for step, label in steps %}
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
+                            {% if step <= order_step %}bg-black text-white{% else %}bg-gray-200 text-gray-500{% endif %}">
+                            {% if step < order_step %}<i class="fas fa-check text-xs"></i>{% else %}{{ step }}{% endif %}
+                        </div>
+                        <p class="text-[10px] text-center mt-2 font-medium text-gray-600 leading-tight max-w-[60px]">{{ label }}</p>
+                    </div>
+                    {% if not forloop.last %}
+                    <div class="flex-1 h-0.5 -mt-5 {% if step < order_step %}bg-black{% else %}bg-gray-200{% endif %}"></div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Payment Status -->
+            {% if payment %}
+            <div class="bg-white border border-gray-200 rounded-xl p-6">
+                <h3 class="font-bold uppercase text-sm tracking-wide mb-4">Thanh toán</h3>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Trạng thái:
+                            <span class="font-semibold
+                                {% if payment.status == 'confirmed' %}text-green-600
+                                {% elif payment.status == 'uploaded' %}text-blue-600
+                                {% else %}text-yellow-600{% endif %}">
+                                {{ payment.get_status_display }}
+                            </span>
+                        </p>
+                        {% if payment.confirmed_at %}
+                        <p class="text-xs text-gray-500">Xác nhận lúc: {{ payment.confirmed_at|date:"d/m/Y H:i" }}</p>
+                        {% endif %}
+                    </div>
+                    {% if payment.status == 'pending' %}
+                    <a href="{% url 'payment_qr' order.id %}" class="px-5 py-2 bg-yellow-500 text-white text-sm font-semibold rounded hover:bg-yellow-600 transition">
+                        Thanh toán ngay
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right: Summary -->
+        <div class="space-y-6">
+            <!-- Pricing -->
+            <div class="bg-white border border-gray-200 rounded-xl p-6">
+                <h3 class="font-bold uppercase text-sm tracking-wide mb-4">Tóm tắt</h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Tạm tính</span>
+                        <span>{{ order.subtotal|currency }}</span>
+                    </div>
+                    {% if order.discount_amount > 0 %}
+                    <div class="flex justify-between text-green-600">
+                        <span>Giảm giá</span>
+                        <span>-{{ order.discount_amount|currency }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Phí vận chuyển</span>
+                        <span>{% if order.shipping_fee == 0 %}Miễn phí{% else %}{{ order.shipping_fee|currency }}{% endif %}</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-base pt-3 border-t border-gray-100">
+                        <span>Tổng cộng</span>
+                        <span>{{ order.total|currency }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shipping info -->
+            <div class="bg-white border border-gray-200 rounded-xl p-6">
+                <h3 class="font-bold uppercase text-sm tracking-wide mb-4">Thông tin giao hàng</h3>
+                <div class="text-sm text-gray-700 space-y-2">
+                    <p class="font-semibold">{{ order.full_name }}</p>
+                    <p><i class="fas fa-phone w-4 text-gray-400"></i> {{ order.phone }}</p>
+                    <p><i class="fas fa-envelope w-4 text-gray-400"></i> {{ order.email }}</p>
+                    <p class="leading-tight mt-2"><i class="fas fa-map-marker-alt w-4 text-gray-400"></i> {{ order.shipping_address }}</p>
+                    <p class="mt-2"><i class="fas fa-truck w-4 text-gray-400"></i> {{ order.get_shipping_method_display }}</p>
+                    {% if order.notes %}
+                    <p class="mt-2 text-gray-500 italic"><i class="fas fa-sticky-note w-4"></i> {{ order.notes }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="space-y-3">
+                {% if order.status in 'pending,confirmed' %}
+                <form action="{% url 'order_cancel' order.id %}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full py-3 border border-red-400 text-red-600 text-sm font-semibold uppercase hover:bg-red-600 hover:text-white hover:border-red-600 transition rounded">
+                        Hủy đơn hàng
+                    </button>
+                </form>
+                {% endif %}
+                <a href="{% url 'home' %}" class="block w-full py-3 bg-black text-white text-center text-sm font-semibold uppercase hover:bg-gray-800 transition rounded">
+                    Tiếp tục mua sắm
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

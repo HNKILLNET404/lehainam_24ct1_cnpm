@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Tìm kiếm: {{ query }} - Urban Threads{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+    <!-- Breadcrumb -->
+    <nav class="text-xs text-gray-500 uppercase tracking-wider mb-6">
+        <ol class="list-none p-0 inline-flex gap-2">
+            <li class="flex items-center">
+                <a href="{% url 'home' %}" class="hover:text-black">Trang chủ</a>
+                <i class="fas fa-chevron-right text-[10px] mx-2"></i>
+            </li>
+            <li class="flex items-center">
+                <a href="{% url 'product_list' %}" class="hover:text-black">Sản phẩm</a>
+                <i class="fas fa-chevron-right text-[10px] mx-2"></i>
+            </li>
+            <li class="text-black font-semibold">Tìm kiếm: "{{ query }}"</li>
+        </ol>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="mb-10 pb-6 border-b border-gray-200">
+        <h1 class="text-2xl md:text-3xl font-bold uppercase tracking-tight mb-2">
+            Kết quả tìm kiếm cho: <span class="text-gray-500 font-normal">"{{ query }}"</span>
+        </h1>
+        <p class="text-sm text-gray-500">Tìm thấy {{ products.paginator.count }} sản phẩm phù hợp</p>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        {% for product in products %}
+            {% include 'products/includes/product_card.html' with product=product %}
+        {% empty %}
+            <div class="col-span-full py-20 text-center bg-gray-50 border border-gray-200 rounded-lg">
+                <i class="fas fa-search text-5xl text-gray-300 mb-4"></i>
+                <h3 class="text-lg font-bold text-gray-800">Không tìm thấy sản phẩm nào</h3>
+                <p class="text-gray-500 text-sm mt-2">Vui lòng thử từ khóa khác hoặc xem tất cả các sản phẩm đang có.</p>
+                <a href="{% url 'product_list' %}" class="inline-block mt-6 px-6 py-2.5 bg-black text-white text-xs font-semibold uppercase tracking-wider rounded hover:bg-gray-800 transition">
+                    Xem tất cả sản phẩm
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if products.has_other_pages %}
+    <div class="mt-12 flex justify-center">
+        <nav class="flex gap-2">
+            {% if products.has_previous %}
+                <a href="?q={{ query }}&page={{ products.previous_page_number }}" class="w-10 h-10 flex items-center justify-center border border-gray-300 hover:border-black transition">
+                    <i class="fas fa-chevron-left text-xs"></i>
+                </a>
+            {% endif %}
+
+            {% for i in products.paginator.page_range %}
+                {% if products.number == i %}
+                    <span class="w-10 h-10 flex items-center justify-center bg-black text-white font-medium">{{ i }}</span>
+                {% else %}
+                    <a href="?q={{ query }}&page={{ i }}" class="w-10 h-10 flex items-center justify-center border border-gray-300 hover:border-black transition text-gray-600 hover:text-black">
+                        {{ i }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+
+            {% if products.has_next %}
+                <a href="?q={{ query }}&page={{ products.next_page_number }}" class="w-10 h-10 flex items-center justify-center border border-gray-300 hover:border-black transition">
+                    <i class="fas fa-chevron-right text-xs"></i>
+                </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
