@@ -19,31 +19,32 @@ deactivate UI
 
 User -> UI : 3. Nhập thông tin (email, họ và tên, phone, password, nhập lại password)
 activate UI
-UI -> BE : 4. Gửi dữ liệu form đăng ký (POST)
+User -> UI : 4. Bấm vào nút "Đăng ký"
+UI -> BE : 5. Gửi dữ liệu form đăng ký (POST)
 activate BE
 
-BE -> DB : 5. Truy vấn kiểm tra email đã tồn tại trong CSDL chưa?
+BE -> DB : 6. Truy vấn kiểm tra email đã tồn tại trong CSDL chưa?
 activate DB
-DB --> BE : 6. Trả về kết quả kiểm tra
+DB --> BE : 7. Trả về kết quả kiểm tra
 deactivate DB
 
-alt Điều kiện: Email chưa tồn tại & Password trùng khớp
-    BE -> BE : 7. Băm mật khẩu bảo mật (PBKDF2_SHA256)
-    BE -> DB : 8. Lưu tài khoản mới vào bảng accounts_user
+alt Thành công
+    BE -> BE : 8. Băm mật khẩu bảo mật (PBKDF2_SHA256)
+    BE -> DB : 9. Lưu tài khoản mới vào bảng accounts_user
     activate DB
-    DB --> BE : 9. Trả về kết quả lưu thành công
+    DB --> BE : 10. Trả về kết quả lưu thành công
     deactivate DB
-    BE --> UI : 10. Trả về thông báo "Đăng ký thành công"
+    BE --> UI : 11. Trả về thông báo "Đăng ký thành công"
     deactivate BE
     activate UI
-    UI --> User : 11. Chuyển hướng sang trang đăng nhập (/accounts/login/)
+    UI --> User : 12. Chuyển hướng sang trang đăng nhập (/accounts/login/)
     deactivate UI
-else Điều kiện: Email đã tồn tại HOẶC Password không trùng khớp
+else Thất bại
     activate BE
-    BE --> UI : 7*. Trả về thông báo lỗi cụ thể
+    BE --> UI : 8*. Trả về thông báo lỗi cụ thể
     deactivate BE
     activate UI
-    UI --> User : 8*. Hiển thị lỗi trên form đăng ký để người dùng sửa lại
+    UI --> User : 9*. Hiển thị lỗi trên form đăng ký để người dùng sửa lại
     deactivate UI
 end
 
