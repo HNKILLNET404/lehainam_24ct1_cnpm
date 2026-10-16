@@ -14,39 +14,36 @@ participant "«Service»\nRegisterView\nD:/urban-threads/\naccounts/\nviews.py" 
 
 database "Database\nSQLite\naccounts_user\nD:/urban-threads/\ndb.sqlite3" as DB
 
-User -> UI : 1. Nhập thông tin đăng ký\n(email, họ tên, SĐT, password, nhập lại password)
-User -> UI : 2. Bấm nút "Đăng ký"
+User -> UI : 1 Nhập thông tin đăng ký\n(email, họ tên, SĐT, password, nhập lại password)
+User -> UI : 2 Bấm nút "Đăng ký"
 activate UI
-UI -> BE : 3. POST /accounts/register/\n(email, full_name, phone, password1, password2)
+UI -> BE : 3 POST /accounts/register/\n(email, full_name, phone, password1, password2)
 activate BE
 
 note over BE : Kiểm tra thông tin\ntrong cơ sở dữ liệu
 
-BE -> DB : 4. SELECT * FROM accounts_user\nWHERE email = ?
+BE -> DB : 4 SELECT * FROM accounts_user\nWHERE email = ?
 activate DB
-DB --> BE : 5. Kết quả (Null hoặc đối tượng User)
+DB --> BE : 5 Kết quả (Null hoặc đối tượng User)
 deactivate DB
 
-alt Nhánh [Thất bại - Email đã tồn tại hoặc Password không khớp]
-    BE --> UI : 6. Trả về thông báo lỗi cụ thể
-    deactivate BE
-    UI --> User : 7. Redirect về /accounts/register/\n(Hiển thị lỗi trên form để người dùng sửa lại)
-    deactivate UI
-else Nhánh [Thành công - Email chưa tồn tại và Password khớp]
-    activate BE
-    BE -> BE : 6. Băm mật khẩu bảo mật (PBKDF2_SHA256)
-    BE -> DB : 7. INSERT INTO accounts_user\n(email, password, first_name, last_name, phone)\nVALUES (...)
+alt Nhánh [Email đã tồn tại]
+    BE -> BE : 6 Trả về thông báo lỗi\n"Email đã được đăng ký"
+    BE --> UI : 7 Redirect về /accounts/register/
+    UI --> User : 8 Hiển thị lỗi trên form\nđể người dùng sửa lại
+else Nhánh [Email chưa tồn tại]
+    BE -> BE : 6 Băm mật khẩu (PBKDF2_SHA256)
+    BE -> DB : 7 INSERT INTO accounts_user\n(email, password, first_name, last_name, phone)\nVALUES (...)
     activate DB
-    DB --> BE : 8. Kết quả lưu thành công
+    DB --> BE : 8 Kết quả lưu thành công
     deactivate DB
-    BE -> BE : 9. Tạo session đăng nhập tự động
-    BE --> UI : 10. Xác nhận đăng ký thành công
-    deactivate BE
-    activate UI
-    UI --> User : 11. Redirect về trang chủ (/)
-    deactivate UI
+    BE -> BE : 9 Tạo session đăng nhập tự động
+    BE --> UI : 10 Redirect về trang chủ (/)
+    UI --> User : 11 Hiển thị trang chủ
 end
+deactivate BE
+deactivate UI
 
-User -> User : 12. Hiển thị giao diện tương ứng\n(Thông báo lỗi hoặc Trang chủ)
+User -> User : 12 Hiển thị giao diện tương ứng\n(Thông báo lỗi hoặc Trang chủ)
 
 @enduml

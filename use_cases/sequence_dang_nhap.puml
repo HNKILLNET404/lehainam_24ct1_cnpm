@@ -14,45 +14,35 @@ participant "«Service»\nLoginView\nD:/urban-threads/\naccounts/\nviews.py" as 
 
 database "Database\nSQLite\naccounts_user\nD:/urban-threads/\ndb.sqlite3" as DB
 
-User -> UI : 1. Nhập email và password
-User -> UI : 2. Bấm nút "Đăng nhập"
+User -> UI : 1 Nhập email và password
+User -> UI : 2 Bấm nút "Đăng nhập"
 activate UI
-UI -> BE : 3. POST /accounts/login/\n(email, password)
+UI -> BE : 3 POST /accounts/login/\n(email, password)
 activate BE
 
 note over BE : Kiểm tra thông tin\ntrong cơ sở dữ liệu
 
-BE -> DB : 4. SELECT * FROM accounts_user\nWHERE email = ?
+BE -> DB : 4 SELECT * FROM accounts_user\nWHERE email = ?
 activate DB
-DB --> BE : 5. Kết quả (Null hoặc đối tượng User)
+DB --> BE : 5 Kết quả (Null hoặc đối tượng User)
 deactivate DB
 
 alt Nhánh [Sai thông tin]
-    BE -> BE : 6. So sánh mật khẩu thất bại
-    BE --> UI : 7. Trả về thông báo lỗi
-    deactivate BE
-    UI --> User : 8. Redirect về /accounts/login/\n(Hiển thị "Email hoặc mật khẩu không đúng")
-    deactivate UI
+    BE -> BE : 6 So sánh mật khẩu thất bại
+    BE --> UI : 7 Redirect về /accounts/login/
+    UI --> User : 8 Hiển thị "Email hoặc\nmật khẩu không đúng"
 else Nhánh [Thành công - ADMIN/STAFF]
-    activate BE
-    BE -> BE : 6. Xác thực thành công (is_staff = True)
-    BE -> BE : 7. Tạo session đăng nhập
-    BE --> UI : 8. Xác nhận đăng nhập thành công
-    deactivate BE
-    activate UI
-    UI --> User : 9. Redirect tới /admin/ (Trang quản trị)
-    deactivate UI
+    BE -> BE : 6 Xác thực thành công\n(is_staff = True)
+    BE --> UI : 7 Tạo session đăng nhập
+    UI --> User : 8 Redirect tới /admin/\n(Trang quản trị)
 else Nhánh [Thành công - CUSTOMER]
-    activate BE
-    BE -> BE : 6. Xác thực thành công (is_staff = False)
-    BE -> BE : 7. Tạo session đăng nhập
-    BE --> UI : 8. Xác nhận đăng nhập thành công
-    deactivate BE
-    activate UI
-    UI --> User : 9. Redirect về trang chủ (/)
-    deactivate UI
+    BE -> BE : 6 Xác thực thành công\n(is_staff = False)
+    BE --> UI : 7 Tạo session đăng nhập
+    UI --> User : 8 Redirect về trang chủ (/)
 end
+deactivate BE
+deactivate UI
 
-User -> User : 10. Hiển thị giao diện tương ứng\n(Thông báo lỗi hoặc Trang đích)
+User -> User : 9 Hiển thị giao diện tương ứng\n(Thông báo lỗi hoặc Trang đích)
 
 @enduml
