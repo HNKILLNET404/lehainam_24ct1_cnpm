@@ -1,47 +1,58 @@
 @startuml
-skinparam sequenceMessageAlign center
 skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam defaultFontSize 11
+skinparam sequenceMessageAlign center
+
+title Biểu đồ tuần tự - Trường hợp người dùng đăng nhập
 
 actor "Khách hàng" as User
-participant "[Giao diện]\nD:/urban-threads/templates/accounts/login.html" as UI
-participant "[Xử lý nghiệp vụ]\nD:/urban-threads/accounts/views.py" as BE
-database "[Cơ sở dữ liệu]\nD:/urban-threads/db.sqlite3\n(Bảng: accounts_user)" as DB
 
-box "Tên chức năng: Đăng nhập hệ thống" #LightYellow
-end box
+participant "«View»\nLogin UI\nD:/urban-threads/\ntemplates/accounts/\nlogin.html" as UI
 
-User -> UI : 1. Yêu cầu truy cập chức năng đăng nhập
+participant "«Service»\nLoginView\nD:/urban-threads/\naccounts/\nviews.py" as BE
+
+database "Database\nSQLite\naccounts_user\nD:/urban-threads/\ndb.sqlite3" as DB
+
+User -> UI : 1. Nhập email và password
+User -> UI : 2. Bấm nút "Đăng nhập"
 activate UI
-UI --> User : 2. Hiển thị form đăng nhập (Email, Password)
-deactivate UI
-
-User -> UI : 3. Nhập thông tin đăng nhập (email, password)
-activate UI
-UI -> BE : 4. Gửi dữ liệu đăng nhập (POST)
+UI -> BE : 3. POST /accounts/login/\n(email, password)
 activate BE
 
-BE -> DB : 5. Truy vấn tìm kiếm tài khoản theo email
+note over BE : Kiểm tra thông tin\ntrong cơ sở dữ liệu
+
+BE -> DB : 4. SELECT * FROM accounts_user\nWHERE email = ?
 activate DB
-DB --> BE : 6. Trả về thông tin người dùng và mật khẩu băm
+DB --> BE : 5. Kết quả (Null hoặc đối tượng User)
 deactivate DB
 
-alt Điều kiện: Tài khoản tồn tại & Password chính xác & Đang hoạt động
-    BE -> BE : 7. Kiểm tra xác thực mật khẩu check_password() thành công
-    BE -> BE : 8. Khởi tạo phiên làm việc (Session) & cấp Cookie
-    BE --> UI : 9. Trả về thông báo "Đăng nhập thành công"
+alt Nhánh [Sai thông tin]
+    BE -> BE : 6. So sánh mật khẩu thất bại
+    BE --> UI : 7. Trả về thông báo lỗi
     deactivate BE
-    activate UI
-    UI --> User : 10. Chuyển hướng người dùng về trang chủ (/)
+    UI --> User : 8. Redirect về /accounts/login/\n(Hiển thị "Email hoặc mật khẩu không đúng")
     deactivate UI
-else Điều kiện: Sai email HOẶC sai password HOẶC tài khoản bị khóa
+else Nhánh [Thành công - ADMIN/STAFF]
     activate BE
-    BE --> UI : 7*. Trả về thông báo lỗi đăng nhập ("Email hoặc mật khẩu không đúng")
+    BE -> BE : 6. Xác thực thành công (is_staff = True)
+    BE -> BE : 7. Tạo session đăng nhập
+    BE --> UI : 8. Xác nhận đăng nhập thành công
     deactivate BE
     activate UI
-    UI --> User : 8*. Hiển thị thông báo lỗi trên form đăng nhập
+    UI --> User : 9. Redirect tới /admin/ (Trang quản trị)
+    deactivate UI
+else Nhánh [Thành công - CUSTOMER]
+    activate BE
+    BE -> BE : 6. Xác thực thành công (is_staff = False)
+    BE -> BE : 7. Tạo session đăng nhập
+    BE --> UI : 8. Xác nhận đăng nhập thành công
+    deactivate BE
+    activate UI
+    UI --> User : 9. Redirect về trang chủ (/)
     deactivate UI
 end
+
+User -> User : 10. Hiển thị giao diện tương ứng\n(Thông báo lỗi hoặc Trang đích)
 
 @enduml
