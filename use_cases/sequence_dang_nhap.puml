@@ -1,4 +1,4 @@
-@startuml
+﻿@startuml
 skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam defaultFontSize 11
@@ -7,11 +7,8 @@ skinparam sequenceMessageAlign center
 title Biểu đồ tuần tự - Trường hợp người dùng đăng nhập
 
 actor "Khách hàng" as User
-
 participant "«View»\nLogin UI\nD:/urban-threads/\ntemplates/accounts/\nlogin.html" as UI
-
 participant "«Service»\nLoginView\nD:/urban-threads/\naccounts/\nviews.py" as BE
-
 database "Database\nSQLite\naccounts_user\nD:/urban-threads/\ndb.sqlite3" as DB
 
 User -> UI : 1 Nhập email và password
@@ -29,19 +26,18 @@ deactivate DB
 
 alt Nhánh [Sai thông tin]
     BE -> BE : 6 So sánh mật khẩu thất bại
-    BE --> UI : 7 Redirect về /accounts/login/?error
 else Nhánh [Thành công - ADMIN/STAFF]
-    BE -> BE : 8 Xác thực thành công (is_staff = True)
-    BE -> BE : 9 Tạo session đăng nhập
-    BE --> UI : 10 Redirect tới /admin/ (Trang quản trị)
+    BE -> BE : 6 Xác thực thành công (is_staff = True)
+    BE -> BE : 7 Tạo session đăng nhập
 else Nhánh [Thành công - CUSTOMER]
-    BE -> BE : 11 Xác thực thành công (is_staff = False)
-    BE -> BE : 12 Tạo session đăng nhập
-    BE --> UI : 13 Redirect về trang chủ (/)
+    BE -> BE : 6 Xác thực thành công (is_staff = False)
+    BE -> BE : 7 Tạo session đăng nhập
 end
+
+BE --> UI : 8 Trả về kết quả điều hướng\n(Redirect /admin/, / hoặc /accounts/login/?error)
 deactivate BE
 
-UI --> User : 14 Hiển thị giao diện tương ứng\n(Thông báo lỗi hoặc Trang đích)
+UI --> User : 9 Hiển thị giao diện tương ứng\n(Thông báo lỗi hoặc Trang đích)
 deactivate UI
 
 @enduml

@@ -1,4 +1,4 @@
-@startuml
+﻿@startuml
 skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam defaultFontSize 11
@@ -7,11 +7,8 @@ skinparam sequenceMessageAlign center
 title Biểu đồ tuần tự - Trường hợp người dùng đăng ký tài khoản
 
 actor "Khách hàng" as User
-
 participant "«View»\nRegister UI\nD:/urban-threads/\ntemplates/accounts/\nregister.html" as UI
-
 participant "«Service»\nRegisterView\nD:/urban-threads/\naccounts/\nviews.py" as BE
-
 database "Database\nSQLite\naccounts_user\nD:/urban-threads/\ndb.sqlite3" as DB
 
 User -> UI : 1 Nhập thông tin đăng ký\n(email, họ tên, SĐT, password, nhập lại password)
@@ -28,20 +25,20 @@ DB --> BE : 5 Kết quả (Null hoặc đối tượng User)
 deactivate DB
 
 alt Nhánh [Email đã tồn tại]
-    BE -> BE : 6 Trả về thông báo lỗi\n"Email đã được đăng ký"
-    BE --> UI : 7 Redirect về /accounts/register/?error
+    BE -> BE : 6 Thông báo lỗi: "Email đã tồn tại"
 else Nhánh [Email chưa tồn tại]
-    BE -> BE : 8 Băm mật khẩu bảo mật (PBKDF2_SHA256)
-    BE -> DB : 9 INSERT INTO accounts_user\n(email, password, first_name, last_name, phone)\nVALUES (...)
+    BE -> BE : 6 Băm mật khẩu (PBKDF2_SHA256)
+    BE -> DB : 7 INSERT INTO accounts_user\n(email, password, first_name, last_name, phone)\nVALUES (...)
     activate DB
-    DB --> BE : 10 Kết quả lưu thành công
+    DB --> BE : 8 Kết quả lưu thành công
     deactivate DB
-    BE -> BE : 11 Tạo session đăng nhập tự động
-    BE --> UI : 12 Redirect về trang chủ (/)
+    BE -> BE : 9 Tạo session đăng nhập tự động
 end
+
+BE --> UI : 10 Trả về kết quả điều hướng\n(Redirect / hoặc /accounts/register/?error)
 deactivate BE
 
-UI --> User : 13 Hiển thị giao diện tương ứng\n(Thông báo lỗi hoặc Trang chủ)
+UI --> User : 11 Hiển thị giao diện tương ứng\n(Thông báo lỗi hoặc Trang chủ)
 deactivate UI
 
 @enduml
