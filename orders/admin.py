@@ -13,8 +13,13 @@ class OrderItemInline(admin.TabularInline):
     fields = ('product_name', 'color_name', 'size_name', 'unit_price', 'quantity', 'total_price_display')
     can_delete = False
 
+    def has_add_permission(self, request, obj=None):
+        return False
+
     def total_price_display(self, obj):
-        return format_html('<strong>{} VNĐ</strong>', f"{obj.total_price:,.0f}")
+        if obj and obj.total_price:
+            return format_html('<strong>{} VNĐ</strong>', f"{obj.total_price:,.0f}")
+        return '-'
     total_price_display.short_description = 'Thành tiền'
 
 
@@ -112,17 +117,26 @@ class OrderAdmin(admin.ModelAdmin):
     qr_action_link.short_description = 'Trang QR'
 
     def order_summary_box(self, obj):
+        if not obj or not obj.id:
+            return '-'
         items = obj.items.all()
         rows = ''
         for item in items:
+            unit = item.unit_price or 0
+            qty = item.quantity or 0
+            tot = item.total_price or 0
             rows += f'''
             <tr>
                 <td style="padding:6px 10px;">{item.product_name}</td>
                 <td style="padding:6px 10px;color:#888;">{item.color_name} / {item.size_name}</td>
-                <td style="padding:6px 10px;text-align:center;">×{item.quantity}</td>
-                <td style="padding:6px 10px;text-align:right;font-weight:600;">{item.unit_price:,.0f}đ</td>
-                <td style="padding:6px 10px;text-align:right;font-weight:600;">{item.total_price:,.0f}đ</td>
+                <td style="padding:6px 10px;text-align:center;">×{qty}</td>
+                <td style="padding:6px 10px;text-align:right;font-weight:600;">{unit:,.0f}đ</td>
+                <td style="padding:6px 10px;text-align:right;font-weight:600;">{tot:,.0f}đ</td>
             </tr>'''
+        sub = obj.subtotal or 0
+        disc = obj.discount_amount or 0
+        ship = obj.shipping_fee or 0
+        tot = obj.total or 0
         return format_html('''
             <div style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-top:8px;">
                 <table style="width:100%;border-collapse:collapse;font-size:13px;">
@@ -157,7 +171,7 @@ class OrderAdmin(admin.ModelAdmin):
                     </tfoot>
                 </table>
             </div>
-        ''', format_html(rows), f"{obj.subtotal:,.0f}", f"{obj.discount_amount:,.0f}", f"{obj.shipping_fee:,.0f}", f"{obj.total:,.0f}")
+        ''', format_html(rows), f"{sub:,.0f}", f"{disc:,.0f}", f"{ship:,.0f}", f"{tot:,.0f}")
     order_summary_box.short_description = 'Chi tiết đơn hàng'
 
     # ── ACTIONS ──

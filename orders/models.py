@@ -80,4 +80,6 @@ class OrderItem(models.Model):
 
     @property
     def total_price(self):
-        return self.unit_price * self.quantity
+        if self.unit_price is not None and self.quantity is not None:
+            return self.unit_price * self.quantity
+        return 0
