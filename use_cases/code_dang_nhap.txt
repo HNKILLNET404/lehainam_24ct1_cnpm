@@ -1,0 +1,13 @@
+flowchart LR
+    A([START]) --> B[Mở trang Đăng nhập]
+    B --> C[/Nhập: Email và Mật khẩu/]
+    C --> D[Bấm nút Đăng nhập]
+    D --> E[(Truy vấn CSDL SQLite: accounts_user)]
+    E --> F{Email và Mật khẩu đúng?}
+    F -->|Sai thông tin| C
+    F -->|Chính xác| G[Tạo Session đăng nhập]
+    G --> H{Kiểm tra quyền Admin?}
+    H -->|Là Admin| I[Chuyển tới Trang Quản trị /admin/]
+    H -->|Khách hàng| J[Chuyển về Trang chủ /]
+    I --> K([END])
+    J --> K

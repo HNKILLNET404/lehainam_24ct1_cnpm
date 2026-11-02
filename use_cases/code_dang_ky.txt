@@ -1,0 +1,13 @@
+flowchart LR
+    A([START]) --> B[Mở trang Đăng ký]
+    B --> C[/Nhập: Email, Họ tên, SĐT, Mật khẩu, Nhập lại MK/]
+    C --> D[Bấm nút Đăng ký]
+    D --> E{Mật khẩu 2 lần khớp?}
+    E -->|Không khớp| C
+    E -->|Khớp| F{Email đã tồn tại?}
+    F -->|Đã tồn tại| C
+    F -->|Hợp lệ| G[Băm mật khẩu PBKDF2]
+    G --> H[(Lưu vào CSDL SQLite: accounts_user)]
+    H --> I[Tự động tạo Session đăng nhập]
+    I --> J[Chuyển hướng về Trang chủ /]
+    J --> K([END])
