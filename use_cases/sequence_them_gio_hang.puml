@@ -1,0 +1,49 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam sequenceMessageAlign center
+
+title Biểu đồ tuần tự - Trường hợp người dùng thêm sản phẩm vào giỏ hàng
+
+actor "Khách hàng" as User
+participant "«View»\nProduct Detail UI\nD:/urban-threads/\ntemplates/products/\nproduct_detail.html" as UI
+participant "«Service»\nCartAddView\nD:/urban-threads/\ncart/\nviews.py" as BE
+database "Database\nSQLite\ncart_cart / cart_cartitem\nD:/urban-threads/\ndb.sqlite3" as DB
+
+User -> UI : 1 Chọn biến thể (màu sắc, size) và số lượng
+User -> UI : 2 Bấm nút "Thêm vào giỏ hàng"
+activate UI
+UI -> BE : 3 POST /cart/add/\n(variant_id, quantity)
+activate BE
+
+note over BE : Kiểm tra tồn kho biến thể\nvà xử lý giỏ hàng
+
+BE -> DB : 4 SELECT stock FROM products_productvariant\nWHERE id = ?
+activate DB
+DB --> BE : 5 Kết quả (số lượng tồn kho)
+deactivate DB
+
+alt Nhánh [Hết hàng (stock == 0)]
+    BE -> BE : 6 Thông báo lỗi: "Sản phẩm đã hết hàng"
+else Nhánh [Còn hàng - Đã có trong giỏ]
+    BE -> DB : 6 UPDATE cart_cartitem\nSET quantity = quantity + ? WHERE variant_id = ?
+    activate DB
+    DB --> BE : 7 Cập nhật số lượng thành công
+    deactivate DB
+    BE -> BE : 8 Cập nhật tổng số lượng giỏ hàng
+else Nhánh [Còn hàng - Chưa có trong giỏ]
+    BE -> DB : 6 INSERT INTO cart_cartitem\n(cart_id, variant_id, quantity) VALUES (...)
+    activate DB
+    DB --> BE : 7 Lưu bản ghi mới thành công
+    deactivate DB
+    BE -> BE : 8 Cập nhật tổng số lượng giỏ hàng
+end
+
+BE --> UI : 9 Trả về phản hồi JSON\n({success: True, cart_count: total} hoặc {error})
+deactivate BE
+
+UI --> User : 10 Cập nhật icon giỏ hàng & Hiển thị thông báo\n(Thành công hoặc Báo lỗi)
+deactivate UI
+
+@enduml

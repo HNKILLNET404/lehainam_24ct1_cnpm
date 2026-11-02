@@ -1,0 +1,60 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam sequenceMessageAlign center
+
+title Biểu đồ tuần tự - Trường hợp người dùng thanh toán đơn hàng
+
+actor "Khách hàng" as User
+participant "«View»\nCheckout & Payment UI\nD:/urban-threads/\ntemplates/orders/checkout.html\npayments/payment_qr.html" as UI
+participant "«Service»\nCheckout & Payment View\nD:/urban-threads/\norders/views.py\npayments/views.py" as BE
+database "Database\nSQLite\norders_order / payments_payment\nD:/urban-threads/\ndb.sqlite3" as DB
+
+User -> UI : 1 Nhập thông tin giao hàng & Chọn phương thức ship
+User -> UI : 2 Bấm nút "Xác nhận đặt hàng"
+activate UI
+UI -> BE : 3 POST /orders/checkout/\n(full_name, phone, address, shipping_method)
+activate BE
+
+note over BE : Kiểm tra giỏ hàng,\ntính phí ship & tạo đơn hàng
+
+BE -> DB : 4 SELECT * FROM cart_cartitem WHERE cart_id = ?
+activate DB
+DB --> BE : 5 Danh sách sản phẩm trong giỏ
+deactivate DB
+
+alt Nhánh [Giỏ hàng trống]
+    BE -> BE : 6 Thông báo lỗi: "Giỏ hàng đang trống"
+else Nhánh [Giỏ hàng hợp lệ]
+    BE -> DB : 6 INSERT INTO orders_order (order_number, total, status='pending')\nINSERT INTO orders_orderitem (...)\nUPDATE products_productvariant SET stock = stock - qty\nDELETE FROM cart_cartitem WHERE cart_id = ?
+    activate DB
+    DB --> BE : 7 Đơn hàng được tạo thành công
+    deactivate DB
+    BE -> BE : 8 Sinh mã VietQR động theo đơn hàng\n(https://img.vietqr.io/.../?amount=total&addInfo=order_number)
+    BE -> DB : 9 INSERT INTO payments_payment (order_id, amount, status='pending')
+    activate DB
+    DB --> BE : 10 Khởi tạo thanh toán thành công
+    deactivate DB
+end
+
+BE --> UI : 11 Trả về kết quả điều hướng\n(Redirect /payments/qr/<order_id>/ hoặc /cart/?error)
+deactivate BE
+
+UI --> User : 12 Hiển thị trang thanh toán VietQR (hoặc Báo lỗi)
+deactivate UI
+
+User -> UI : 13 Quét mã QR chuyển khoản & Tải lên ảnh biên lai
+activate UI
+UI -> BE : 14 POST /payments/receipt/<payment_id>/ (receipt_image)
+activate BE
+BE -> DB : 15 UPDATE payments_payment SET status='uploaded'\nUPDATE orders_order SET status='confirmed'
+activate DB
+DB --> BE : 16 Cập nhật trạng thái thành công
+deactivate DB
+BE --> UI : 17 Trả về điều hướng (Redirect /orders/thank-you/<order_id>/)
+deactivate BE
+UI --> User : 18 Hiển thị màn hình: "Đặt hàng & Thanh toán thành công!"
+deactivate UI
+
+@enduml
