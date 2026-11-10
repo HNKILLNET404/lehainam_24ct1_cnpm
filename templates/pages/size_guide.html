@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Hướng dẫn chọn size — Urban Threads{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center mb-12">
+        <p class="text-accent text-sm uppercase tracking-widest mb-2">Bảng kích cỡ chuẩn</p>
+        <h1 class="text-4xl font-bold uppercase tracking-tight">Hướng Dẫn Chọn Size</h1>
+        <p class="text-gray-500 mt-2">Dưới đây là thông số kích thước chuẩn cho các dòng sản phẩm Streetwear Urban Threads.</p>
+    </div>
+
+    <!-- Áo thun / Hoodie / Áo khoác -->
+    <div class="bg-white border border-gray-200 rounded-xl p-8 mb-10 shadow-sm">
+        <h2 class="text-xl font-bold uppercase tracking-wide mb-4 flex items-center gap-2">
+            <i class="fas fa-tshirt"></i> 1. Bảng size Áo (T-Shirt, Polo, Hoodie, Sweater, Jacket)
+        </h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="border-b border-gray-200 bg-gray-50">
+                        <th class="py-3 px-4 font-semibold">Size</th>
+                        <th class="py-3 px-4 font-semibold">Chiều cao (cm)</th>
+                        <th class="py-3 px-4 font-semibold">Cân nặng (kg)</th>
+                        <th class="py-3 px-4 font-semibold">Rộng ngực (cm)</th>
+                        <th class="py-3 px-4 font-semibold">Dài áo (cm)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <tr><td class="py-3 px-4 font-bold">S</td><td class="py-3 px-4">155 - 165</td><td class="py-3 px-4">48 - 56</td><td class="py-3 px-4">104</td><td class="py-3 px-4">68</td></tr>
+                    <tr><td class="py-3 px-4 font-bold">M</td><td class="py-3 px-4">165 - 172</td><td class="py-3 px-4">57 - 65</td><td class="py-3 px-4">110</td><td class="py-3 px-4">71</td></tr>
+                    <tr><td class="py-3 px-4 font-bold">L</td><td class="py-3 px-4">170 - 178</td><td class="py-3 px-4">66 - 75</td><td class="py-3 px-4">116</td><td class="py-3 px-4">74</td></tr>
+                    <tr><td class="py-3 px-4 font-bold">XL</td><td class="py-3 px-4">175 - 185</td><td class="py-3 px-4">76 - 88</td><td class="py-3 px-4">122</td><td class="py-3 px-4">77</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="text-xs text-gray-500 mt-4 italic">* Các sản phẩm mang form dáng Oversize rộng rãi thoải mái theo chuẩn phong cách đường phố. Nếu thích mặc ôm vừa, bạn có thể chọn lùi 1 size.</p>
+    </div>
+
+    <!-- Quần -->
+    <div class="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+        <h2 class="text-xl font-bold uppercase tracking-wide mb-4 flex items-center gap-2">
+            <i class="fas fa-socks"></i> 2. Bảng size Quần (Jeans, Kaki, Cargo Pants)
+        </h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="border-b border-gray-200 bg-gray-50">
+                        <th class="py-3 px-4 font-semibold">Size</th>
+                        <th class="py-3 px-4 font-semibold">Vòng eo (cm)</th>
+                        <th class="py-3 px-4 font-semibold">Vòng mông (cm)</th>
+                        <th class="py-3 px-4 font-semibold">Dài quần (cm)</th>
+                        <th class="py-3 px-4 font-semibold">Cân nặng phù hợp</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <tr><td class="py-3 px-4 font-bold">29</td><td class="py-3 px-4">74 - 76</td><td class="py-3 px-4">92 - 94</td><td class="py-3 px-4">98</td><td class="py-3 px-4">50 - 58kg</td></tr>
+                    <tr><td class="py-3 px-4 font-bold">30</td><td class="py-3 px-4">77 - 80</td><td class="py-3 px-4">95 - 98</td><td class="py-3 px-4">100</td><td class="py-3 px-4">58 - 65kg</td></tr>
+                    <tr><td class="py-3 px-4 font-bold">31</td><td class="py-3 px-4">81 - 83</td><td class="py-3 px-4">99 - 102</td><td class="py-3 px-4">102</td><td class="py-3 px-4">65 - 72kg</td></tr>
+                    <tr><td class="py-3 px-4 font-bold">32</td><td class="py-3 px-4">84 - 87</td><td class="py-3 px-4">103 - 106</td><td class="py-3 px-4">104</td><td class="py-3 px-4">72 - 80kg</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

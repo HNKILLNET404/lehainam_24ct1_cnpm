@@ -26,6 +26,7 @@ def checkout_view(request):
         ward = request.POST.get('ward')
         street_address = request.POST.get('street_address')
         shipping_method = request.POST.get('shipping_method', 'standard')
+        payment_method = request.POST.get('payment_method', 'qr')
         notes = request.POST.get('notes', '')
         shipping_fee = SHIPPING_FEES.get(shipping_method, settings.SHIPPING_STANDARD)
         if cart.subtotal >= settings.FREE_SHIPPING_THRESHOLD:
@@ -36,7 +37,8 @@ def checkout_view(request):
             province=province, district=district, ward=ward, street_address=street_address,
             subtotal=cart.subtotal, discount_amount=cart.discount_amount,
             shipping_fee=shipping_fee, total=cart.total + shipping_fee,
-            coupon_code=cart.coupon_code, shipping_method=shipping_method, notes=notes,
+            coupon_code=cart.coupon_code, shipping_method=shipping_method,
+            payment_method=payment_method, notes=notes,
         )
         order.save()
         order.order_number = f'DH{str(order.id)[:8].upper()}'
@@ -58,7 +60,18 @@ def checkout_view(request):
         cart.items.all().delete()
         cart.coupon_code = ''
         cart.save()
-        return redirect('payment_qr', order_id=order.id)
+        if payment_method == 'cod':
+            from payments.models import Payment
+            Payment.objects.create(
+                order=order,
+                amount=order.total,
+                status='pending',
+                notes='Thanh toán khi nhận hàng (COD)'
+            )
+            messages.success(request, f'Đặt hàng thành công! Đơn hàng {order.order_number} sẽ được thanh toán bằng tiền mặt khi nhận hàng (COD).')
+            return redirect('order_thank_you', order_id=order.id)
+        else:
+            return redirect('payment_qr', order_id=order.id)
     addresses = request.user.addresses.all()
     context = {
         'cart': cart, 'addresses': addresses,

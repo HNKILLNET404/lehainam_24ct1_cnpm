@@ -104,15 +104,33 @@
                     </div>
                 </div>
 
-                <!-- Phương thức thanh toán -->
+                <!-- Phương thức thanh toán (BUG-05) -->
                 <div class="mb-8">
                     <h2 class="text-xl font-bold uppercase tracking-wide mb-4 pb-2 border-b border-gray-200">Phương thức thanh toán</h2>
-                    <div class="p-4 border border-black bg-gray-50 rounded">
-                        <div class="flex items-center gap-3 mb-2">
-                            <input type="radio" checked class="text-black focus:ring-black">
-                            <span class="font-semibold">Thanh toán chuyển khoản (QR Code)</span>
-                        </div>
-                        <p class="text-sm text-gray-600 ml-7">Hệ thống sẽ tạo mã QR tự động để bạn quét thanh toán nhanh chóng qua ứng dụng ngân hàng hoặc ví điện tử (MoMo, ZaloPay, VNPay...)</p>
+                    <div class="space-y-3">
+                        <label class="flex items-start gap-4 p-4 border rounded cursor-pointer transition-colors"
+                               :class="paymentMethod === 'qr' ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-black'">
+                            <input type="radio" name="payment_method" value="qr" x-model="paymentMethod" class="mt-1 text-black focus:ring-black">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-semibold text-gray-900">Thanh toán chuyển khoản (VietQR Napas247)</span>
+                                    <span class="text-[10px] bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded uppercase">Khuyên dùng</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Hệ thống tạo mã VietQR động tự động điền sẵn số tiền và mã đơn. Quét nhanh bằng mọi ứng dụng ngân hàng và ví điện tử (MoMo, ZaloPay, VNPay...).</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-4 p-4 border rounded cursor-pointer transition-colors"
+                               :class="paymentMethod === 'cod' ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-black'">
+                            <input type="radio" name="payment_method" value="cod" x-model="paymentMethod" class="mt-1 text-black focus:ring-black">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-semibold text-gray-900">Thanh toán khi nhận hàng (COD)</span>
+                                    <span class="text-[10px] bg-gray-100 text-gray-600 font-bold px-2 py-0.5 rounded uppercase">Tiền mặt</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Quý khách thanh toán bằng tiền mặt trực tiếp cho nhân viên giao hàng khi nhận và kiểm tra bưu kiện.</p>
+                            </div>
+                        </label>
                     </div>
                 </div>
                 
@@ -186,6 +204,7 @@
         Alpine.data('checkoutForm', () => ({
             selectedAddress: '{% if addresses %}{{ addresses.0.id }}{% else %}new{% endif %}',
             shippingMethod: 'standard',
+            paymentMethod: 'qr',
             subtotal: {{ cart.total }},
             freeThreshold: {{ free_threshold }},
             

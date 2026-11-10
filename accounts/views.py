@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from .forms import RegisterForm, LoginForm, ProfileForm, AddressForm
+from django.contrib.auth.forms import PasswordChangeForm
 from .models import Address
 from orders.models import Order
 
@@ -126,3 +127,21 @@ def address_delete_view(request, pk):
         address.delete()
         messages.success(request, 'Địa chỉ đã được xóa.')
     return redirect('address_list')
+
+
+@login_required
+def password_change_view(request):
+    """Đổi mật khẩu trong hồ sơ cá nhân"""
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Mật khẩu của bạn đã được thay đổi thành công!')
+            return redirect('profile')
+        else:
+            messages.error(request, 'Vui lòng kiểm tra lại thông tin mật khẩu bên dưới.')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'accounts/password_change.html', {'form': form})
+

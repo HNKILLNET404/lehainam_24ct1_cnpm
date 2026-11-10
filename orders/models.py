@@ -15,6 +15,10 @@ class Order(models.Model):
         ('express', 'Giao nhanh (1-2 ngày)'),
         ('same_day', 'Giao hỏa tốc (trong ngày)'),
     ]
+    PAYMENT_METHOD_CHOICES = [
+        ('qr', 'Thanh toán chuyển khoản (VietQR)'),
+        ('cod', 'Thanh toán khi nhận hàng (COD)'),
+    ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     order_number = models.CharField(max_length=20, unique=True, blank=True, verbose_name='Mã đơn hàng')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
@@ -33,6 +37,7 @@ class Order(models.Model):
     coupon_code = models.CharField(max_length=50, blank=True, verbose_name='Mã giảm giá')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name='Trạng thái')
     shipping_method = models.CharField(max_length=20, choices=SHIPPING_METHOD_CHOICES, default='standard')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='qr', verbose_name='Phương thức thanh toán')
     notes = models.TextField(blank=True, verbose_name='Ghi chú')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -32,6 +32,19 @@ class Category(models.Model):
     def get_absolute_url(self):
         return reverse('category_detail', kwargs={'slug': self.slug})
 
+    @property
+    def display_image(self):
+        if self.image:
+            return self.image.url
+        default_images = {
+            'ao-thun': 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80',
+            'ao-hoodie-sweater': 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&q=80',
+            'ao-khoac': 'https://images.unsplash.com/photo-1544441893-675973e31985?w=800&q=80',
+            'quan-dai': 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=800&q=80',
+            'ao-polo-so-mi': 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=800&q=80',
+        }
+        return default_images.get(self.slug, 'https://images.unsplash.com/photo-1523398002811-999ca8dec234?w=800&q=80')
+
 
 class Product(models.Model):
     """Sản phẩm"""

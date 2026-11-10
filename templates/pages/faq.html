@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Câu hỏi thường gặp — Urban Threads{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center mb-12">
+        <p class="text-accent text-sm uppercase tracking-widest mb-2">Giải đáp thắc mắc</p>
+        <h1 class="text-4xl font-bold uppercase tracking-tight">Câu Hỏi Thường Gặp (FAQ)</h1>
+    </div>
+
+    <div class="space-y-4" x-data="{ openItem: 1 }">
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <button @click="openItem = openItem === 1 ? null : 1" class="w-full p-5 text-left font-semibold flex justify-between items-center text-gray-900">
+                <span>1. Bao lâu tôi nhận được hàng sau khi đặt?</span>
+                <i class="fas fa-chevron-down transition-transform" :class="openItem === 1 ? 'rotate-180' : ''"></i>
+            </button>
+            <div x-show="openItem === 1" class="px-5 pb-5 text-sm text-gray-600 leading-relaxed">
+                Đơn hàng nội thành Hà Nội & Ninh Bình thường nhận được trong vòng 24 - 48 giờ. Các tỉnh thành khác nhận từ 2 - 4 ngày làm việc tùy khu vực.
+            </div>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <button @click="openItem = openItem === 2 ? null : 2" class="w-full p-5 text-left font-semibold flex justify-between items-center text-gray-900">
+                <span>2. Đơn hàng từ bao nhiêu thì được miễn phí vận chuyển?</span>
+                <i class="fas fa-chevron-down transition-transform" :class="openItem === 2 ? 'rotate-180' : ''"></i>
+            </button>
+            <div x-show="openItem === 2" class="px-5 pb-5 text-sm text-gray-600 leading-relaxed">
+                Urban Threads miễn phí vận chuyển toàn quốc cho mọi đơn hàng có giá trị thanh toán tạm tính từ <strong>500.000đ</strong> trở lên.
+            </div>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <button @click="openItem = openItem === 3 ? null : 3" class="w-full p-5 text-left font-semibold flex justify-between items-center text-gray-900">
+                <span>3. Tôi có thể thanh toán bằng phương thức nào?</span>
+                <i class="fas fa-chevron-down transition-transform" :class="openItem === 3 ? 'rotate-180' : ''"></i>
+            </button>
+            <div x-show="openItem === 3" class="px-5 pb-5 text-sm text-gray-600 leading-relaxed">
+                Chúng tôi hỗ trợ chuyển khoản nhanh quét mã <strong>VietQR Napas247</strong> qua tất cả các app ngân hàng và ví điện tử, cũng như thanh toán tiền mặt khi nhận hàng (<strong>COD</strong>).
+            </div>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <button @click="openItem = openItem === 4 ? null : 4" class="w-full p-5 text-left font-semibold flex justify-between items-center text-gray-900">
+                <span>4. Nếu mặc không vừa tôi có được đổi size không?</span>
+                <i class="fas fa-chevron-down transition-transform" :class="openItem === 4 ? 'rotate-180' : ''"></i>
+            </button>
+            <div x-show="openItem === 4" class="px-5 pb-5 text-sm text-gray-600 leading-relaxed">
+                Có. Bạn được đổi size trong vòng 7 ngày kể từ khi nhận hàng. Vui lòng giữ nguyên tem mác sản phẩm và liên hệ Hotline 0368889999 để được hỗ trợ nhanh nhất.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

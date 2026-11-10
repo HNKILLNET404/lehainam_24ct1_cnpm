@@ -14,11 +14,9 @@
         </div>
 
         <!-- Wishlist btn -->
-        {% if user.is_authenticated %}
-        <button onclick="toggleWishlist('{{ product.id }}')" class="absolute top-2 right-2 z-10 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:text-accent transition">
-            <i class="far fa-heart"></i>
+        <button type="button" onclick="toggleWishlist('{{ product.id }}')" data-wishlist-btn="{{ product.id }}" title="Thêm vào yêu thích" class="absolute top-2 right-2 z-10 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:text-red-500 transition">
+            <i class="far fa-heart text-sm"></i>
         </button>
-        {% endif %}
 
         <!-- Images -->
         <a href="{{ product.get_absolute_url }}" class="block w-full h-full">

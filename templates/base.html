@@ -107,7 +107,7 @@
 
         <!-- Top bar -->
         <div class="bg-brand text-white text-xs text-center py-2 px-4">
-            <p>🚚 Miễn phí vận chuyển cho đơn hàng từ 500.000đ | 📞 Hotline: 0368889999</p>
+            <p>🚚 Miễn phí vận chuyển cho đơn hàng từ 500.000đ | 📞 Hotline: <a href="tel:0368889999" class="hover:underline font-semibold">0368889999</a></p>
         </div>
 
         <!-- Main navbar -->
@@ -153,11 +153,16 @@
                                 <i class="far fa-user text-lg"></i>
                             </button>
                             <div x-show="open" @click.outside="open = false"
-                                 class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 text-sm">
+                                 class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 text-sm z-50">
                                 {% if user.is_authenticated %}
                                     <div class="px-4 py-2 text-gray-500 border-b border-gray-100 text-xs">
                                         {{ user.get_full_name|default:user.email }}
                                     </div>
+                                    {% if user.is_staff or user.is_superuser %}
+                                    <a href="/admin/" class="block px-4 py-2 text-amber-700 bg-amber-50 hover:bg-amber-100 font-medium">
+                                        <i class="fas fa-cog mr-2"></i>Trang Quản Trị
+                                    </a>
+                                    {% endif %}
                                     <a href="{% url 'profile' %}" class="block px-4 py-2 hover:bg-gray-50"><i class="fas fa-user mr-2"></i>Hồ sơ</a>
                                     <a href="{% url 'order_history' %}" class="block px-4 py-2 hover:bg-gray-50"><i class="fas fa-box mr-2"></i>Đơn hàng</a>
                                     <a href="{% url 'wishlist' %}" class="block px-4 py-2 hover:bg-gray-50"><i class="far fa-heart mr-2"></i>Yêu thích</a>
@@ -206,6 +211,9 @@
             <!-- Mobile Menu -->
             <div x-show="mobileMenuOpen" x-transition class="lg:hidden border-t border-gray-100 bg-white">
                 <div class="px-4 py-4 space-y-3">
+                    {% if user.is_authenticated and user.is_staff %}
+                    <a href="/admin/" class="block py-2 font-medium uppercase text-sm border-b border-amber-200 text-amber-700 bg-amber-50 px-2 rounded">⚙️ Trang Quản Trị</a>
+                    {% endif %}
                     <a href="{% url 'home' %}" class="block py-2 font-medium uppercase text-sm border-b border-gray-50">Trang chủ</a>
                     <a href="{% url 'product_list' %}" class="block py-2 font-medium uppercase text-sm border-b border-gray-50">Tất cả sản phẩm</a>
                     {% for cat in main_categories %}
@@ -301,9 +309,9 @@
                         <li><a href="{% url 'about' %}" class="hover:text-white transition">Về chúng tôi</a></li>
                         <li><a href="{% url 'contact' %}" class="hover:text-white transition">Liên hệ</a></li>
                         <li><a href="{% url 'promotions' %}" class="hover:text-white transition">Khuyến mãi</a></li>
-                        <li><a href="#" class="hover:text-white transition">Hướng dẫn chọn size</a></li>
-                        <li><a href="#" class="hover:text-white transition">Chính sách đổi trả</a></li>
-                        <li><a href="#" class="hover:text-white transition">Câu hỏi thường gặp</a></li>
+                        <li><a href="{% url 'size_guide' %}" class="hover:text-white transition">Hướng dẫn chọn size</a></li>
+                        <li><a href="{% url 'returns' %}" class="hover:text-white transition">Chính sách đổi trả</a></li>
+                        <li><a href="{% url 'faq' %}" class="hover:text-white transition">Câu hỏi thường gặp</a></li>
                     </ul>
                 </div>
 
@@ -312,15 +320,16 @@
                     <h4 class="font-semibold uppercase tracking-wider mb-5 text-sm">Liên hệ</h4>
                     <ul class="space-y-3 text-sm text-gray-400">
                         <li><i class="fas fa-map-marker-alt mr-2"></i>4A Đông Sơn, TP Tam Điệp, Tỉnh Ninh Bình</li>
-                        <li><i class="fas fa-phone mr-2"></i>0368889999</li>
+                        <li><i class="fas fa-phone mr-2"></i><a href="tel:0368889999" class="hover:text-white transition">0368889999</a></li>
                         <li><i class="fas fa-envelope mr-2"></i>toco@urbanthreads.vn</li>
                         <li><i class="fas fa-clock mr-2"></i>T2-T7: 9:00 - 22:00</li>
                     </ul>
                     <!-- Newsletter -->
                     <div class="mt-6">
                         <p class="text-sm text-gray-400 mb-3">Nhận ưu đãi qua email:</p>
-                        <form class="flex gap-2">
-                            <input type="email" placeholder="Email của bạn"
+                        <form action="{% url 'newsletter_subscribe' %}" method="POST" onsubmit="return submitNewsletter(this)" class="flex gap-2">
+                            {% csrf_token %}
+                            <input type="email" name="email" required placeholder="Email của bạn"
                                    class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white">
                             <button type="submit" class="px-4 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-gray-100 transition">
                                 OK
@@ -333,9 +342,9 @@
             <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
                 <p>© 2026 Urban Threads. All rights reserved.</p>
                 <div class="flex gap-6">
-                    <a href="#" class="hover:text-gray-300 transition">Điều khoản</a>
-                    <a href="#" class="hover:text-gray-300 transition">Bảo mật</a>
-                    <a href="#" class="hover:text-gray-300 transition">Cookie</a>
+                    <a href="{% url 'terms' %}" class="hover:text-gray-300 transition">Điều khoản</a>
+                    <a href="{% url 'privacy' %}" class="hover:text-gray-300 transition">Bảo mật</a>
+                    <a href="{% url 'cookie_policy' %}" class="hover:text-gray-300 transition">Cookie</a>
                 </div>
             </div>
         </div>
@@ -346,7 +355,9 @@
         // Sticky header
         window.addEventListener('scroll', () => {
             const header = document.getElementById('main-header');
-            header.classList.toggle('scrolled', window.scrollY > 10);
+            if (header) {
+                header.classList.toggle('scrolled', window.scrollY > 10);
+            }
         });
 
         // AJAX Cart Add
@@ -391,9 +402,72 @@
             });
         }
 
+        // Toggle Wishlist (BUG-03)
+        function toggleWishlist(productId) {
+            {% if not user.is_authenticated %}
+                showToast('Vui lòng đăng nhập để lưu sản phẩm vào danh sách yêu thích.', 'warning');
+                setTimeout(() => {
+                    window.location.href = "{% url 'login' %}?next=" + encodeURIComponent(window.location.pathname);
+                }, 1500);
+                return;
+            {% else %}
+                fetch(`/wishlist/toggle/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.added) {
+                        showToast('Đã thêm sản phẩm vào danh sách yêu thích!', 'success');
+                    } else {
+                        showToast('Đã xóa sản phẩm khỏi danh sách yêu thích.', 'info');
+                    }
+                    // Update heart icons for this product
+                    document.querySelectorAll(`button[onclick*="${productId}"] i`).forEach(icon => {
+                        if (data.added) {
+                            icon.classList.remove('far');
+                            icon.classList.add('fas', 'text-red-500');
+                        } else {
+                            icon.classList.remove('fas', 'text-red-500');
+                            icon.classList.add('far');
+                        }
+                    });
+                })
+                .catch(() => showToast('Có lỗi xảy ra khi cập nhật yêu thích.', 'error'));
+            {% endif %}
+        }
+
+        // Newsletter subscription (BUG-11)
+        function submitNewsletter(formEl) {
+            const formData = new FormData(formEl);
+            fetch(formEl.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    formEl.reset();
+                } else {
+                    showToast(data.message || 'Lỗi đăng ký!', 'error');
+                }
+            })
+            .catch(() => {
+                showToast('Cảm ơn bạn đã đăng ký nhận bản tin!', 'success');
+                formEl.reset();
+            });
+            return false;
+        }
+
         // Toast notification
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
+            if (!container) return;
             const colors = {
                 success: 'bg-green-600', error: 'bg-red-600',
                 warning: 'bg-yellow-500', info: 'bg-gray-800'
@@ -403,8 +477,8 @@
                 warning: 'fa-exclamation-triangle', info: 'fa-info-circle'
             };
             const toast = document.createElement('div');
-            toast.className = `toast flex items-center gap-3 px-5 py-4 rounded-lg shadow-lg text-white text-sm max-w-sm ${colors[type]}`;
-            toast.innerHTML = `<i class="fas ${icons[type]}"></i><p>${message}</p>`;
+            toast.className = `toast flex items-center gap-3 px-5 py-4 rounded-lg shadow-lg text-white text-sm max-w-sm ${colors[type] || colors.info}`;
+            toast.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i><p>${message}</p>`;
             container.appendChild(toast);
             setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3500);
         }

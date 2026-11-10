@@ -7,9 +7,8 @@
     <aside class="w-full lg:w-64 flex-shrink-0">
         <h2 class="text-xl font-bold uppercase tracking-wide mb-6">Bộ Lọc</h2>
         <form method="GET" action="" id="filter-form">
-            <!-- Giữ lại query search/sort -->
+            <!-- Giữ lại query search -->
             {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
-            {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{% endif %}
 
             <!-- Danh mục -->
             <div class="mb-8">

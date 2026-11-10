@@ -1,6 +1,7 @@
 import unicodedata
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q, Avg
+from django.db.models.functions import Coalesce
 from django.core.paginator import Paginator
 from .models import Product, Category, ProductVariant, Color, Size
 
@@ -113,11 +114,12 @@ def product_list(request):
         products = search_products(q, base_queryset=products)
 
     # Sort
-    sort = request.GET.get('sort', '-created_at')
+    products = products.annotate(effective_price=Coalesce('sale_price', 'base_price'))
+    sort = request.GET.get('sort', 'newest')
     sort_options = {
         'newest': '-created_at',
-        'price_asc': 'base_price',
-        'price_desc': '-base_price',
+        'price_asc': 'effective_price',
+        'price_desc': '-effective_price',
         'best_seller': '-total_sold',
     }
     products = products.order_by(sort_options.get(sort, '-created_at'))
@@ -176,10 +178,19 @@ def category_detail(request, slug):
     """Trang danh mục"""
     category = get_object_or_404(Category, slug=slug, is_active=True)
     products = Product.objects.filter(category=category, is_active=True).prefetch_related('images', 'variants')
+    products = products.annotate(effective_price=Coalesce('sale_price', 'base_price'))
+    sort = request.GET.get('sort', 'newest')
+    sort_options = {
+        'newest': '-created_at',
+        'price_asc': 'effective_price',
+        'price_desc': '-effective_price',
+        'best_seller': '-total_sold',
+    }
+    products = products.order_by(sort_options.get(sort, '-created_at'))
     paginator = Paginator(products, 12)
     page = request.GET.get('page', 1)
     products_page = paginator.get_page(page)
-    return render(request, 'products/category_detail.html', {'category': category, 'products': products_page})
+    return render(request, 'products/category_detail.html', {'category': category, 'products': products_page, 'current_sort': sort})
 
 
 def search_view(request):

@@ -25,3 +25,9 @@ staticfiles/
 
 *.tmp
 cloudflared.exe
+
+# Docs & Scratch
+*.docx
+~$*
+scratch/
+

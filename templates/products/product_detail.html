@@ -102,7 +102,9 @@
                 <div class="mb-8">
                     <div class="flex justify-between items-end mb-3">
                         <h3 class="text-sm font-semibold uppercase tracking-wider">Kích cỡ</h3>
-                        <button type="button" class="text-xs text-gray-500 hover:text-black underline">Hướng dẫn chọn size</button>
+                        <a href="{% url 'size_guide' %}" target="_blank" class="text-xs text-gray-500 hover:text-black underline">
+                            <i class="fas fa-ruler mr-1"></i>Hướng dẫn chọn size
+                        </a>
                     </div>
                     <div class="flex flex-wrap gap-3">
                         {% for size in sizes %}
@@ -140,10 +142,16 @@
                     </div>
                     
                     <button type="submit" 
-                            class="flex-1 bg-black text-white text-sm font-semibold uppercase tracking-wider transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                            class="flex-1 bg-black text-white text-sm font-semibold uppercase tracking-wider transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-gray-800"
                             :disabled="!selectedVariantId || currentStock <= 0">
                         <span x-show="currentStock > 0">Thêm vào giỏ hàng</span>
                         <span x-show="currentStock <= 0">Hết hàng</span>
+                    </button>
+
+                    <button type="button" onclick="toggleWishlist('{{ product.id }}')" 
+                            class="w-14 h-14 border border-gray-300 flex items-center justify-center text-gray-700 hover:border-black hover:text-red-500 transition shadow-sm flex-shrink-0"
+                            title="Thêm vào danh sách yêu thích">
+                        <i class="far fa-heart text-xl"></i>
                     </button>
                 </div>
             </form>
@@ -178,6 +186,116 @@
             
         </div>
     </div>
+
+    <!-- Customer Reviews Section (BUG-10) -->
+    <section id="reviews" class="mt-20 pt-12 border-t border-gray-200">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+            <div>
+                <h2 class="text-2xl font-bold uppercase tracking-tight">Đánh giá sản phẩm</h2>
+                <div class="flex items-center gap-3 mt-2">
+                    <div class="flex text-yellow-400 text-lg">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= product.average_rating %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="font-bold text-lg">{{ product.average_rating }} / 5</span>
+                    <span class="text-gray-400 text-sm">({{ product.review_count }} đánh giá)</span>
+                </div>
+            </div>
+
+            {% if user.is_authenticated %}
+            <a href="#write-review" class="px-6 py-3 bg-black text-white text-xs font-semibold uppercase tracking-wider rounded hover:bg-gray-800 transition">
+                Viết đánh giá
+            </a>
+            {% else %}
+            <a href="{% url 'login' %}?next={{ request.path }}" class="px-6 py-3 border border-black text-black text-xs font-semibold uppercase tracking-wider rounded hover:bg-black hover:text-white transition">
+                Đăng nhập để đánh giá
+            </a>
+            {% endif %}
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <!-- Review List -->
+            <div class="lg:col-span-2 space-y-6">
+                {% for r in reviews %}
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <div class="flex text-yellow-400 text-sm mb-1">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= r.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <h4 class="font-semibold text-gray-900">{{ r.title|default:"Đánh giá sản phẩm" }}</h4>
+                        </div>
+                        <span class="text-xs text-gray-400">{{ r.created_at|date:"d/m/Y" }}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 leading-relaxed mb-3">{{ r.body }}</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                        <span class="font-medium"><i class="fas fa-check-circle text-green-600 mr-1"></i>{{ r.user.get_full_name|default:r.user.email }} (Đã mua hàng)</span>
+                        {% if user == r.user %}
+                        <a href="{% url 'delete_review' r.id %}" onclick="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?')" class="text-red-500 hover:underline">
+                            Xóa
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-10 text-center text-gray-500">
+                    <i class="far fa-comment-dots text-4xl mb-3 text-gray-300"></i>
+                    <p class="font-medium">Chưa có đánh giá nào cho sản phẩm này.</p>
+                    <p class="text-sm text-gray-400 mt-1">Hãy là người đầu tiên để lại cảm nhận của bạn!</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Write Review Form -->
+            <div id="write-review" class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm h-fit">
+                <h3 class="font-bold text-lg uppercase tracking-wide mb-4">Gửi cảm nhận của bạn</h3>
+                {% if user.is_authenticated %}
+                <form action="{% url 'add_review' product.id %}" method="POST" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-700 mb-1">Số sao đánh giá *</label>
+                        <select name="rating" required class="w-full border-gray-300 rounded text-sm focus:border-black focus:ring-black">
+                            <option value="5">⭐⭐⭐⭐⭐ Tuyệt vời (5 sao)</option>
+                            <option value="4">⭐⭐⭐⭐ Rất tốt (4 sao)</option>
+                            <option value="3">⭐⭐⭐ Bình thường (3 sao)</option>
+                            <option value="2">⭐⭐ Chưa hài lòng (2 sao)</option>
+                            <option value="1">⭐ Kém (1 sao)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-700 mb-1">Tiêu đề</label>
+                        <input type="text" name="title" placeholder="Tóm tắt cảm nhận của bạn" class="w-full border-gray-300 rounded text-sm focus:border-black focus:ring-black">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-700 mb-1">Nội dung đánh giá *</label>
+                        <textarea name="body" rows="4" required placeholder="Chất liệu vải thế nào? Form áo có vừa vặn không?..." class="w-full border-gray-300 rounded text-sm focus:border-black focus:ring-black"></textarea>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-black text-white text-xs font-semibold uppercase tracking-wider rounded hover:bg-gray-800 transition">
+                        Gửi Đánh Giá
+                    </button>
+                </form>
+                {% else %}
+                <div class="text-center py-6">
+                    <p class="text-sm text-gray-600 mb-4">Vui lòng đăng nhập để có thể để lại đánh giá cho sản phẩm này.</p>
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="inline-block px-6 py-2.5 bg-black text-white text-xs font-semibold uppercase tracking-wider rounded hover:bg-gray-800 transition">
+                        Đăng nhập ngay
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
 
     <!-- Related Products -->
     {% if related_products %}
