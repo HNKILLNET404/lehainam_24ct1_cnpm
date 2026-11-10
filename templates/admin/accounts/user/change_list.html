@@ -1,0 +1,30 @@
+{% extends "admin/change_list.html" %}
+
+{% block content_title %}
+    {{ block.super }}
+    <div style="margin: 16px 0 20px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+        <a href="?" style="text-decoration:none; background:#111827; color:#fff; padding:16px 20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.08); display:block;">
+            <div style="font-size:12px; text-transform:uppercase; opacity:0.8; font-weight:600;">Tổng số tài khoản (All Users)</div>
+            <div style="font-size:28px; font-weight:800; margin-top:6px;">{{ summary_total }}</div>
+            <div style="font-size:11px; opacity:0.7; margin-top:4px;">SELECT COUNT(*) FROM accounts_user;</div>
+        </a>
+
+        <a href="?is_superuser__exact=1" style="text-decoration:none; background:#dc2626; color:#fff; padding:16px 20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.08); display:block;">
+            <div style="font-size:12px; text-transform:uppercase; opacity:0.9; font-weight:600;">👑 Tổng Admin (Quản trị viên)</div>
+            <div style="font-size:28px; font-weight:800; margin-top:6px;">{{ summary_admin }}</div>
+            <div style="font-size:11px; opacity:0.85; margin-top:4px;">WHERE is_superuser = 1 (Bấm để lọc)</div>
+        </a>
+
+        <a href="?is_staff__exact=1&is_superuser__exact=0" style="text-decoration:none; background:#2563eb; color:#fff; padding:16px 20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.08); display:block;">
+            <div style="font-size:12px; text-transform:uppercase; opacity:0.9; font-weight:600;">👔 Tổng Nhân viên (Staff)</div>
+            <div style="font-size:28px; font-weight:800; margin-top:6px;">{{ summary_staff }}</div>
+            <div style="font-size:11px; opacity:0.85; margin-top:4px;">WHERE is_staff = 1 AND is_superuser = 0</div>
+        </a>
+
+        <a href="?is_staff__exact=0&is_superuser__exact=0" style="text-decoration:none; background:#059669; color:#fff; padding:16px 20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.08); display:block;">
+            <div style="font-size:12px; text-transform:uppercase; opacity:0.9; font-weight:600;">👤 Tổng Khách hàng (Customers)</div>
+            <div style="font-size:28px; font-weight:800; margin-top:6px;">{{ summary_customer }}</div>
+            <div style="font-size:11px; opacity:0.85; margin-top:4px;">WHERE is_staff = 0 AND is_superuser = 0</div>
+        </a>
+    </div>
+{% endblock %}
