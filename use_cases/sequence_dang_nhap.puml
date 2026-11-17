@@ -1,0 +1,35 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam sequenceMessageAlign center
+
+title Biểu đồ tuần tự - Trường hợp người dùng đăng nhập
+
+actor "Khách hàng" as User
+participant "«View»\nLogin UI\nD:/urban-threads/\ntemplates/accounts/\nlogin.html" as UI
+participant "«Service»\nLoginView\nD:/urban-threads/\naccounts/\nviews.py" as BE
+database "Database\nSQLite\naccounts_user\nD:/urban-threads/\nurban_threads.sqlite3" as DB
+
+User -> UI : 1 Nhập email và password
+User -> UI : 2 Bấm nút "Đăng nhập"
+activate UI
+UI -> BE : 3 POST /accounts/login/\n(email, password)
+activate BE
+BE -> DB : 4 SELECT * FROM accounts_user\nWHERE email = ?
+activate DB
+DB --> BE : 5 Kết quả (Null hoặc đối tượng User)
+deactivate DB
+
+alt Sai thông tin
+    BE -> BE : 6 So sánh mật khẩu thất bại
+else Thành công - ADMIN/STAFF
+    BE -> BE : 6 Xác thực thành công (is_staff = True)
+    BE -> BE : 7 Tạo session đăng nhập
+else Thành công - CUSTOMER
+    BE -> BE : 6 Xác thực thành công (is_staff = False)
+    BE -> BE : 7 Tạo session đăng nhập
+end
+deactivate BE
+deactivate UI
+@enduml

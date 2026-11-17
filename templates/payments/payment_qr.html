@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16 text-center">
+    
+    <div class="mb-10">
+        <h1 class="text-3xl font-bold uppercase tracking-tight mb-2">Thanh Toán Đơn Hàng</h1>
+        <p class="text-gray-500">Mã đơn hàng: <strong class="text-black">{{ order.order_number }}</strong></p>
+    </div>
+
+    <div class="bg-white border border-gray-200 shadow-sm p-8 rounded-xl">
+        <div class="flex flex-col md:flex-row items-center gap-10">
+            
+            <!-- QR Code Area -->
+            <div class="w-full md:w-1/2 flex flex-col items-center border-b md:border-b-0 md:border-r border-gray-100 pb-8 md:pb-0 md:pr-8">
+                <h3 class="font-bold text-lg mb-4 text-brand">Quét mã QR để thanh toán</h3>
+                
+                <div class="bg-white p-4 border-2 border-gray-200 rounded-2xl shadow-sm mb-4 relative group w-64 h-64 mx-auto flex items-center justify-center">
+                    {% if qr_b64 %}
+                        <img src="data:image/png;base64,{{ qr_b64 }}" alt="QR Code" class="w-full h-full object-contain">
+                    {% else %}
+                        <div class="text-center text-gray-400">
+                            <i class="fas fa-qrcode text-5xl mb-2"></i>
+                            <p class="text-sm">Mã QR sẽ hiển thị tại đây</p>
+                        </div>
+                    {% endif %}
+                    
+                    <a href="{{ vietqr_url }}" target="_blank" class="absolute inset-0 bg-black/60 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-xl font-medium">
+                        Phóng to mã QR
+                    </a>
+                </div>
+                
+                <p class="text-sm text-gray-500 max-w-[250px]">Sử dụng App Ngân hàng hoặc ứng dụng thanh toán (MoMo, ZaloPay...) để quét mã.</p>
+            </div>
+
+            <!-- Manual Transfer Info -->
+            <div class="w-full md:w-1/2 text-left space-y-4">
+                <h3 class="font-bold text-lg mb-4 border-b pb-2">Chuyển khoản thủ công</h3>
+                
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Ngân hàng</p>
+                    <p class="font-bold text-lg text-brand flex items-center justify-between">
+                        {{ bank_info.bank_name }}
+                    </p>
+                </div>
+                
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Số tài khoản</p>
+                    <div class="flex items-center justify-between bg-gray-50 px-3 py-2 border border-gray-200 rounded">
+                        <span class="font-bold text-xl tracking-widest" id="acc-no">{{ bank_info.account_no }}</span>
+                        <button onclick="navigator.clipboard.writeText('{{ bank_info.account_no }}'); showToast('Đã copy số tài khoản');" class="text-accent hover:text-black transition">
+                            <i class="far fa-copy text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Chủ tài khoản</p>
+                    <p class="font-bold text-base">{{ bank_info.account_name }}</p>
+                </div>
+                
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Số tiền chuyển</p>
+                    <div class="flex items-center justify-between bg-gray-50 px-3 py-2 border border-gray-200 rounded text-green-600">
+                        <span class="font-bold text-xl">{{ order.total|comma }} VNĐ</span>
+                        <button onclick="navigator.clipboard.writeText('{{ order.total|comma }}'); showToast('Đã copy số tiền');" class="hover:text-black transition text-accent">
+                            <i class="far fa-copy text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Nội dung chuyển khoản</p>
+                    <div class="flex items-center justify-between bg-yellow-50 px-3 py-2 border border-yellow-200 rounded text-yellow-800">
+                        <span class="font-bold">Thanh toan {{ order.order_number }}</span>
+                        <button onclick="navigator.clipboard.writeText('Thanh toan {{ order.order_number }}'); showToast('Đã copy nội dung');" class="hover:text-black transition text-yellow-600">
+                            <i class="far fa-copy text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Upload Receipt -->
+        <div class="mt-10 pt-8 border-t border-gray-200 text-left">
+            <h3 class="font-bold text-lg mb-4 text-center">Xác nhận đã chuyển khoản</h3>
+            <p class="text-sm text-gray-500 mb-6 text-center max-w-lg mx-auto">Sau khi chuyển khoản thành công, vui lòng tải lên ảnh chụp màn hình biên lai hoặc thông báo giao dịch thành công để chúng tôi xử lý đơn hàng nhanh nhất.</p>
+            
+            <form action="{% url 'upload_receipt' payment.id %}" method="POST" enctype="multipart/form-data" class="max-w-md mx-auto" x-data="{ fileName: '' }">
+                {% csrf_token %}
+                
+                <div class="flex items-center justify-center w-full mb-4">
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors"
+                           :class="fileName ? 'border-green-400 bg-green-50' : 'border-gray-300 bg-gray-50 hover:bg-gray-100 hover:border-gray-400'">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                            <i class="fas fa-cloud-upload-alt text-3xl mb-3 text-gray-400" x-show="!fileName"></i>
+                            <i class="fas fa-image text-3xl mb-3 text-green-500" x-show="fileName"></i>
+                            
+                            <p class="mb-2 text-sm text-gray-500" x-show="!fileName"><span class="font-semibold">Nhấn để chọn ảnh</span> hoặc kéo thả</p>
+                            <p class="text-xs text-gray-500" x-show="!fileName">PNG, JPG, JPEG (Max. 5MB)</p>
+                            
+                            <p class="text-sm font-semibold text-green-600" x-show="fileName" x-text="fileName"></p>
+                        </div>
+                        <input id="receipt-upload" type="file" name="receipt" class="hidden" accept="image/*" required
+                               @change="fileName = $event.target.files[0] ? $event.target.files[0].name : ''">
+                    </label>
+                </div>
+                
+                <button type="submit" class="w-full py-4 bg-black text-white font-bold uppercase tracking-wider rounded-sm hover:bg-gray-800 transition" :disabled="!fileName" :class="!fileName ? 'opacity-50 cursor-not-allowed' : ''">
+                    Gửi Biên Lai Xác Nhận
+                </button>
+            </form>
+            
+            <div class="text-center mt-6">
+                <a href="{% url 'order_thank_you' order.id %}" class="text-sm text-gray-500 hover:text-black underline">Tôi sẽ thanh toán sau</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

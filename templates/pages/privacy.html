@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Chính sách bảo mật — Urban Threads{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center mb-12">
+        <p class="text-accent text-sm uppercase tracking-widest mb-2">Bảo vệ dữ liệu người dùng</p>
+        <h1 class="text-4xl font-bold uppercase tracking-tight">Chính Sách Bảo Mật</h1>
+    </div>
+
+    <div class="space-y-6 bg-white border border-gray-200 rounded-xl p-8 shadow-sm text-gray-700 leading-relaxed text-sm">
+        <h2 class="text-lg font-bold text-black uppercase">1. Mục đích thu thập thông tin cá nhân</h2>
+        <p>Chúng tôi chỉ thu thập họ tên, số điện thoại, địa chỉ nhận hàng và email phục vụ duy nhất cho mục đích xử lý đơn hàng, giao hàng và chăm sóc khách hàng sau bán.</p>
+
+        <h2 class="text-lg font-bold text-black uppercase">2. Tiêu chuẩn bảo mật mật khẩu và dữ liệu</h2>
+        <p>Mật khẩu người dùng được băm mã hóa một chiều theo chuẩn mã hóa quốc tế <strong>PBKDF2 SHA-256</strong> của Django Security Framework. Urban Threads cam kết không bán, chia sẻ hoặc tiết lộ thông tin của quý khách cho bất kỳ bên thứ ba nào ngoại trừ đơn vị vận chuyển đối tác.</p>
+    </div>
+</div>
+{% endblock %}

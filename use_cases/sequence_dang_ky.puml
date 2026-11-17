@@ -1,0 +1,36 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam sequenceMessageAlign center
+
+title Biểu đồ tuần tự - Trường hợp người dùng đăng ký tài khoản
+
+actor "Khách hàng" as User
+participant "«View»\nRegister UI\nD:/urban-threads/\ntemplates/accounts/\nregister.html" as UI
+participant "«Service»\nRegisterView\nD:/urban-threads/\naccounts/\nviews.py" as BE
+database "Database\nSQLite\naccounts_user\nD:/urban-threads/\nurban_threads.sqlite3" as DB
+
+User -> UI : 1 Nhập thông tin đăng ký\n(email, họ tên, SĐT, password, nhập lại password)
+User -> UI : 2 Bấm nút "Đăng ký"
+activate UI
+UI -> BE : 3 POST /accounts/register/\n(email, full_name, phone, password1, password2)
+activate BE
+BE -> DB : 4 SELECT * FROM accounts_user\nWHERE email = ?
+activate DB
+DB --> BE : 5 Kết quả (Null hoặc đối tượng User)
+deactivate DB
+
+alt Email đã tồn tại
+    BE -> BE : 6 Thông báo lỗi: "Email đã tồn tại"
+else Email chưa tồn tại
+    BE -> BE : 6 Băm mật khẩu (PBKDF2_SHA256)
+    BE -> DB : 7 INSERT INTO accounts_user\n(email, password, first_name, last_name, phone)\nVALUES (...)
+    activate DB
+    DB --> BE : 8 Kết quả lưu thành công
+    deactivate DB
+    BE -> BE : 9 Tạo session đăng nhập tự động
+end
+deactivate BE
+deactivate UI
+@enduml

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Chính sách đổi trả — Urban Threads{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center mb-12">
+        <p class="text-accent text-sm uppercase tracking-widest mb-2">Đảm bảo quyền lợi khách hàng</p>
+        <h1 class="text-4xl font-bold uppercase tracking-tight">Chính Sách Đổi Trả</h1>
+        <p class="text-gray-500 mt-2">Urban Threads hỗ trợ đổi hàng linh hoạt trong vòng 7 ngày kể từ khi nhận hàng.</p>
+    </div>
+
+    <div class="space-y-8 bg-white border border-gray-200 rounded-xl p-8 shadow-sm text-gray-700 leading-relaxed text-sm sm:text-base">
+        <div>
+            <h2 class="text-lg font-bold text-black uppercase mb-3">1. Điều kiện đổi trả</h2>
+            <ul class="list-disc list-inside space-y-2 text-gray-600">
+                <li>Sản phẩm còn nguyên tem mác, hóa đơn mua hàng và chưa qua giặt tẩy/sử dụng.</li>
+                <li>Sản phẩm không bị rách, sờn, bẩn hoặc ám mùi nước hoa, chất lạ.</li>
+                <li>Thời gian yêu cầu đổi trả trong vòng <strong>07 ngày</strong> kể từ ngày quý khách nhận được bưu kiện.</li>
+            </ul>
+        </div>
+
+        <div>
+            <h2 class="text-lg font-bold text-black uppercase mb-3">2. Quy trình đổi hàng</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-600">
+                <li>Liên hệ Hotline <strong>0368889999</strong> hoặc gửi thông tin qua trang <a href="{% url 'contact' %}" class="underline text-black">Liên hệ</a> kèm mã đơn hàng.</li>
+                <li>Chuyên viên CSKH sẽ kiểm tra và xác nhận size/mẫu cần đổi mới.</li>
+                <li>Shipper sẽ giao sản phẩm mới đến tận nhà và đồng thời nhận lại sản phẩm đổi của bạn.</li>
+            </ol>
+        </div>
+
+        <div>
+            <h2 class="text-lg font-bold text-black uppercase mb-3">3. Chi phí đổi hàng</h2>
+            <p class="text-gray-600">
+                - Miễn phí 100% nếu lỗi do nhà sản xuất (lỗi đường chỉ, sai màu, sai mẫu so với đơn đặt).<br>
+                - Đổi size hoặc đổi mẫu theo sở thích: quý khách vui lòng hỗ trợ phí ship 2 chiều (30.000đ - 50.000đ).
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
